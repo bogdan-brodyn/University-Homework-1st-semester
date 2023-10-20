@@ -3,11 +3,18 @@
 #include <time.h>
 #include <windows.h>
 
-int getFibonacciNumberRecursively(int numberPosition, int* errorCode)
+typedef enum
+{
+    completedCorrectly,
+    testsFailed,
+    invalidInput
+} ErrorCode;
+
+int getFibonacciNumberRecursively(int numberPosition, ErrorCode* errorCode)
 {
     if (numberPosition <= 0)
     {
-        *errorCode = 1;
+        *errorCode = invalidInput;
         return -1;
     }
     if (numberPosition <= 2)
@@ -18,11 +25,11 @@ int getFibonacciNumberRecursively(int numberPosition, int* errorCode)
         + getFibonacciNumberRecursively(numberPosition - 2, errorCode);
 }
 
-int getFibonacciNumberIteratively(int numberPosition, int* errorCode)
+int getFibonacciNumberIteratively(int numberPosition, ErrorCode* errorCode)
 {
     if (numberPosition <= 0)
     {
-        *errorCode = 1;
+        *errorCode = invalidInput;
         return -1;
     }
     int currentFibonachiNumber = 1;     // it's a second fibonachi number by default
@@ -37,13 +44,26 @@ int getFibonacciNumberIteratively(int numberPosition, int* errorCode)
 
 bool testFibonachiFunctionsWorkTheSame(void)
 {
+    ErrorCode errorCode = completedCorrectly;
+    getFibonacciNumberIteratively(-1, &errorCode);
+    if (errorCode != invalidInput)
+    {
+        return false;
+    }
+    getFibonacciNumberRecursively(-1, &errorCode);
+    if (errorCode != invalidInput)
+    {
+        return false;
+    }
+
     for (int numberPosition = 1; numberPosition < 30; ++numberPosition)
     {
-        int errorCodeIterative = 0;
-        int errorCodeRecursive = 0;
+        ErrorCode errorCodeIterative = completedCorrectly;
+        ErrorCode errorCodeRecursive = completedCorrectly;
         if (getFibonacciNumberIteratively(numberPosition, &errorCodeIterative)
-            != getFibonacciNumberRecursively(numberPosition, &errorCodeIterative)
-            || errorCodeIterative != 0 || errorCodeRecursive != 0)
+            != getFibonacciNumberRecursively(numberPosition, &errorCodeRecursive)
+            || errorCodeIterative != completedCorrectly 
+            || errorCodeRecursive != completedCorrectly)
         {
             return false;
         }
@@ -57,36 +77,42 @@ int main(void)
     if (!testFibonachiFunctionsWorkTheSame())
     {
         printf("Sorry, program is working incorrectly\n");
-        return 1;
+        return testsFailed;
     }
     printf("Program is working correctly\n");
     printf("Program will display on the screen approximate execution time for few fibonachi numbers\n\n");
     Sleep(1500);
 
-    for (int i = 25; i < 40; ++i)
+    for (int numberPosition = 25; ; ++numberPosition)
     {
-        printf("For number with position %d\n", i);
-        int errorCode = 0;
+        printf("For number with position %d the number of clock ticks is:\n", numberPosition);
+        ErrorCode errorCode = completedCorrectly;
         clock_t begin = clock();
-        getFibonacciNumberIteratively(i, &errorCode);
+        getFibonacciNumberIteratively(numberPosition, &errorCode);
         clock_t end = clock();
-        if (errorCode != 0)
+        if (errorCode != completedCorrectly)
         {
-            printf("Iterative version terminated with an error\n");
-            return 2;
+            printf("\nIterative version terminated with an error\n");
+            return errorCode;
         }
-        printf("%d for iterative version and ", end - begin);
+        printf("%d for iterative version ", end - begin);
 
         begin = clock();
-        getFibonacciNumberRecursively(i, &errorCode);
+        getFibonacciNumberRecursively(numberPosition, &errorCode);
         end = clock();
-        if (errorCode != 0)
+        if (errorCode != completedCorrectly)
         {
-            printf("Recursive version terminated with an error\n");
-            return 2;
+            printf("\nRecursive version terminated with an error\n");
+            return errorCode;
         }
-        printf("%d for recursive version\n\n", end - begin);
+        printf("and %d for recursive version\n\n", end - begin);
+
+        if (end - begin > 1000)
+        {
+            printf("Starting from position %d, recursive version is too slow\n\n", numberPosition);
+            break;
+        }
         Sleep(700);
     }
-    printf("Starting from position 40, recursive version is too slow\n\n");
+    return completedCorrectly;
 }
