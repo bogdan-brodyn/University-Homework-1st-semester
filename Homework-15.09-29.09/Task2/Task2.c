@@ -1,70 +1,162 @@
 ﻿#include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <limits.h>
+#include <float.h>
 
-#define modulo 1000000007
-
-long long powerLinearly(long long number, int degree, int* errorCode)
+typedef enum
 {
-    if (degree < 0)
+    defaultErrorCode,
+    overflowMaximumInteger,
+    zeroNegativeDegree,
+    testFailed
+} ErrorCode;
+
+double checkOverflow(double number, ErrorCode* errorCode)
+{
+    if (number > LLONG_MAX)
     {
-        *errorCode = 1;
-        return -1;
+        *errorCode = overflowMaximumInteger;
     }
+    return number;
+}
+
+double powerLinearly(double number, int degree, ErrorCode* errorCode)
+{
     if (degree == 0)
     {
         return 1;
     }
-    number %= modulo;
-    long long result = 1;
+    if (number == 0 && degree < 0)
+    {
+        *errorCode = zeroNegativeDegree;
+        return 0;
+    }
+
+    double result = 1;
     for (int i = 0; i < degree; ++i)
     {
-        result *= number;
-        result %= modulo;
+        result = checkOverflow(result * number, errorCode);
+    }
+    for (int i = 0; i < -degree; ++i)
+    {
+        result /= number;
     }
     return result;
 }
 
-long long powerLogarithmic(long long number, int degree, int* errorCode)
+double powerLogarithmic(double number, int degree, ErrorCode* errorCode)
 {
-    if (degree < 0)
-    {
-        *errorCode = 1;
-        return -1;
-    }
     if (degree == 0)
     {
         return 1;
     }
-    number %= modulo;
     if (degree == 1)
     {
         return number;
     }
+    if (degree == -1)
+    {
+        return 1 / number;
+    }
+    if (degree < 0)
+    {
+        if (number == 0)
+        {
+            *errorCode = zeroNegativeDegree;
+            return 0;
+        }
+        if (degree % 2 == 0)
+        {
+            return powerLogarithmic(1 / (number * number), degree / 2, errorCode);
+        }
+        return (1 / number) * powerLogarithmic(number, degree + 1, errorCode);
+    }
     if (degree % 2 == 0)
     {
-        return powerLogarithmic(number * number, degree / 2, errorCode);
+        return checkOverflow(
+            powerLogarithmic(number * number, degree / 2, errorCode), errorCode);
     }
-    return (number * powerLogarithmic(number, degree - 1, errorCode)) % modulo;
+    return checkOverflow(
+        number * powerLogarithmic(number, degree - 1, errorCode), errorCode);
 }
 
-bool testPowerFunctionsWorkTheSame(void)
+int testErrorCodeCorrectness(double number, int degree, double (*functionPtr)(double, int, ErrorCode*), ErrorCode correctErrorCode)
 {
-    for (int number = 0; number < 500; number++)
+    ErrorCode testErrorCode = defaultErrorCode;
+    functionPtr(number, degree, &testErrorCode);
+    if (testErrorCode != correctErrorCode)
     {
-        for (int degree = 0; degree < 500; degree++)
+        return testFailed;
+    }
+    return defaultErrorCode;
+}
+
+ErrorCode testPowerFunctionsErrorCodes(void)
+{
+    bool codesAreCorrect =
+        testErrorCodeCorrectness(2, 100, powerLinearly, overflowMaximumInteger) == defaultErrorCode
+        && testErrorCodeCorrectness(2, 100, powerLogarithmic, overflowMaximumInteger) == defaultErrorCode
+        && testErrorCodeCorrectness(0, -1, powerLinearly, zeroNegativeDegree) == defaultErrorCode
+        && testErrorCodeCorrectness(0, -1, powerLogarithmic, zeroNegativeDegree) == defaultErrorCode;
+    return codesAreCorrect ? defaultErrorCode : testFailed;
+}
+
+ErrorCode testPowerFunctionsWorkTheSame(void)
+{
+    if (testPowerFunctionsErrorCodes != defaultErrorCode)
+    {
+        return testFailed;
+    }
+
+    for (int number = -20; number < 20; number++)
+    {
+        for (int degree = 0; degree < 13; degree++)
         {
-            int errorCodeLinear = 0;
-            int errorCodeLogarithmic = 0;
-            if (powerLinearly(number, degree, &errorCodeLinear)
-                != powerLogarithmic(number, degree, &errorCodeLogarithmic)
-                || errorCodeLinear != 0 || errorCodeLogarithmic != 0)
+            ErrorCode errorCodeLinear = defaultErrorCode;
+            ErrorCode errorCodeLogarithmic = defaultErrorCode;
+            if (powerLinearly(number, degree, &errorCodeLinear) !=
+                powerLogarithmic(number, degree, &errorCodeLogarithmic)
+                || errorCodeLinear != defaultErrorCode || errorCodeLogarithmic != defaultErrorCode)
             {
-                return false;
+                return testFailed;
             }
         }
     }
-    return true;
+
+    for (int number = -100; number < 100; number++)
+    {
+        for (int degree = -1000; degree < 0; degree++)
+        {
+            ErrorCode errorCodeLinear = defaultErrorCode;
+            ErrorCode errorCodeLogarithmic = defaultErrorCode;
+            if (abs(powerLinearly(number, degree, &errorCodeLinear)
+                - powerLogarithmic(number, degree, &errorCodeLogarithmic)) > 1e9
+                || errorCodeLinear != defaultErrorCode || errorCodeLogarithmic != defaultErrorCode)
+            {
+                return testFailed;
+            }
+        }
+    }
+
+    return defaultErrorCode;
+}
+
+const char linear[] = "Linear";
+const char logarithmic[] = "Logarithmic";
+
+void demonstrateFunctionToUser(int number, int degree, double (*functionPtr)(double, int, ErrorCode*), const char functionName[])
+{
+    ErrorCode errorCode = defaultErrorCode;
+    clock_t begin = clock();
+    double ans = functionPtr(number, degree, &errorCode);
+    clock_t end = clock();
+    if (errorCode != defaultErrorCode)
+    {
+        printf("%s algotithm terminated with an error\n", functionName);
+        return errorCode;
+    }
+    printf("%s algotithm returned: %.20f. Approximate execution time: %d\n", functionName, ans, end - begin);
 }
 
 int main(void)
@@ -72,10 +164,10 @@ int main(void)
     if (!testPowerFunctionsWorkTheSame())
     {
         printf("Sorry, program is working incorrectly\n");
-        return 1;
+        return testFailed;
     }
     printf("Program is working correctly\n");
-    printf("Program returns: (number^degree) mod %d\n", modulo);
+
     int number = 0;
     printf("number = ");
     scanf_s("%d", &number);
@@ -83,23 +175,6 @@ int main(void)
     printf("degree = ");
     scanf_s("%d", &degree);
 
-    int errorCode = 0;
-    clock_t begin = clock();
-    int ans = powerLinearly(number, degree, &errorCode);
-    clock_t end = clock();
-    if (errorCode != 0)
-    {
-        printf("Linear algotithm terminated with an error\n");
-        return 2;
-    }
-    printf("Linear algotithm returned: %d. Approximate execution time: %d\n", ans, end - begin);
-    begin = clock();
-    ans = powerLogarithmic(number, degree, &errorCode);
-    end = clock();
-    if (errorCode != 0)
-    {
-        printf("Logarithmic algotithm terminated with an error\n");
-        return 2;
-    }
-    printf("Logarithmic algotithm returned: %d. Approximate execution time: %d\n\n", ans, end - begin);
+    demonstrateFunctionToUser(number, degree, powerLinearly, linear);
+    demonstrateFunctionToUser(number, degree, powerLogarithmic, logarithmic);
 }
