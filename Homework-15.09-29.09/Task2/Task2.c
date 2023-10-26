@@ -12,7 +12,9 @@ typedef enum
     testFailed
 } ErrorCode;
 
-double checkOverflow(double number, ErrorCode* errorCode)
+typedef double (*powerFunction)(double, int, ErrorCode*);
+
+double checkOverflow(const double number, ErrorCode* errorCode)
 {
     if (number > LLONG_MAX)
     {
@@ -21,18 +23,18 @@ double checkOverflow(double number, ErrorCode* errorCode)
     return number;
 }
 
-double powerLinearly(double number, int degree, ErrorCode* errorCode)
+double powerLinearly(const double number, const int degree, ErrorCode* errorCode)
 {
-    if (degree == 0)
-    {
-        return 1;
-    }
     if (number == 0 && degree < 0)
     {
         *errorCode = zeroNegativeDegree;
         return 0;
     }
 
+    if (degree == 0)
+    {
+        return 1;
+    }
     double result = 1;
     for (int i = 0; i < degree; ++i)
     {
@@ -45,8 +47,14 @@ double powerLinearly(double number, int degree, ErrorCode* errorCode)
     return result;
 }
 
-double powerLogarithmic(double number, int degree, ErrorCode* errorCode)
+double powerLogarithmic(const double number, const int degree, ErrorCode* errorCode)
 {
+    if (number == 0 && degree < 0)
+    {
+        *errorCode = zeroNegativeDegree;
+        return 0;
+    }
+
     if (degree == 0)
     {
         return 1;
@@ -61,11 +69,6 @@ double powerLogarithmic(double number, int degree, ErrorCode* errorCode)
     }
     if (degree < 0)
     {
-        if (number == 0)
-        {
-            *errorCode = zeroNegativeDegree;
-            return 0;
-        }
         if (degree % 2 == 0)
         {
             return powerLogarithmic(1 / (number * number), degree / 2, errorCode);
@@ -81,10 +84,10 @@ double powerLogarithmic(double number, int degree, ErrorCode* errorCode)
         number * powerLogarithmic(number, degree - 1, errorCode), errorCode);
 }
 
-int testErrorCodeCorrectness(double number, int degree, double (*functionPtr)(double, int, ErrorCode*), ErrorCode correctErrorCode)
+int testErrorCodeCorrectness(const double number, const int degree, const powerFunction powerFunction, const ErrorCode correctErrorCode)
 {
     ErrorCode testErrorCode = defaultErrorCode;
-    functionPtr(number, degree, &testErrorCode);
+    powerFunction(number, degree, &testErrorCode);
     if (testErrorCode != correctErrorCode)
     {
         return testFailed;
@@ -145,18 +148,18 @@ ErrorCode testPowerFunctionsWorkTheSame(void)
 const char linear[] = "Linear";
 const char logarithmic[] = "Logarithmic";
 
-void demonstrateFunctionToUser(int number, int degree, double (*functionPtr)(double, int, ErrorCode*), const char functionName[])
+void demonstrateFunctionToUser(const int number, const int degree, const powerFunction powerFunction, const char functionName[])
 {
     ErrorCode errorCode = defaultErrorCode;
     clock_t begin = clock();
-    double ans = functionPtr(number, degree, &errorCode);
+    double ans = powerFunction(number, degree, &errorCode);
     clock_t end = clock();
     if (errorCode != defaultErrorCode)
     {
         printf("%s algotithm terminated with an error\n", functionName);
-        return errorCode;
+        return;
     }
-    printf("%s algotithm returned: %.20f. Approximate execution time: %d\n", functionName, ans, end - begin);
+    printf("%s algotithm returned: %.20f. Approximate execution time: %ld\n", functionName, ans, end - begin);
 }
 
 int main(void)
