@@ -1,26 +1,20 @@
 ﻿#include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
-#include <limits.h>
-#include <float.h>
 
 typedef enum
 {
     defaultErrorCode,
-    overflowMaximumInteger,
+    overflowDouble,
     zeroNegativeDegree,
     testFailed
 } ErrorCode;
 
 typedef double (*powerFunction)(double, int, ErrorCode*);
 
-double checkOverflow(const double number, ErrorCode* errorCode)
+ErrorCode checkOverflow(const double number)
 {
-    if (number > LLONG_MAX)
-    {
-        *errorCode = overflowMaximumInteger;
-    }
-    return number;
+    return number > 1e150 ? overflowDouble : defaultErrorCode;
 }
 
 double powerLinearly(const double number, const int degree, ErrorCode* errorCode)
@@ -38,7 +32,12 @@ double powerLinearly(const double number, const int degree, ErrorCode* errorCode
     double result = 1;
     for (int i = 0; i < degree; ++i)
     {
-        result = checkOverflow(result * number, errorCode);
+        result *= number;
+        *errorCode = checkOverflow(result);
+        if (*errorCode != defaultErrorCode)
+        {
+            return 0;
+        }
     }
     for (int i = 0; i < -degree; ++i)
     {
@@ -77,11 +76,17 @@ double powerLogarithmic(const double number, const int degree, ErrorCode* errorC
     }
     if (degree % 2 == 0)
     {
-        return checkOverflow(
-            powerLogarithmic(number * number, degree / 2, errorCode), errorCode);
+        double temp = number * number;
+        *errorCode = checkOverflow(temp);
+        if (*errorCode != defaultErrorCode)
+        {
+            return 0;
+        }
+        return powerLogarithmic(temp, degree / 2, errorCode);
     }
-    return checkOverflow(
-        number * powerLogarithmic(number, degree - 1, errorCode), errorCode);
+    double result = number * powerLogarithmic(number, degree - 1, errorCode);
+    *errorCode = checkOverflow(result);
+    return result;
 }
 
 int testErrorCodeCorrectness(const double number, const int degree, const powerFunction powerFunction, const ErrorCode correctErrorCode)
@@ -98,11 +103,16 @@ int testErrorCodeCorrectness(const double number, const int degree, const powerF
 ErrorCode testPowerFunctionsErrorCodes(void)
 {
     bool codesAreCorrect =
-        testErrorCodeCorrectness(2, 100, powerLinearly, overflowMaximumInteger) == defaultErrorCode
-        && testErrorCodeCorrectness(2, 100, powerLogarithmic, overflowMaximumInteger) == defaultErrorCode
+        testErrorCodeCorrectness(2, 100, powerLinearly, overflowDouble) == defaultErrorCode
+        && testErrorCodeCorrectness(2, 100, powerLogarithmic, overflowDouble) == defaultErrorCode
         && testErrorCodeCorrectness(0, -1, powerLinearly, zeroNegativeDegree) == defaultErrorCode
         && testErrorCodeCorrectness(0, -1, powerLogarithmic, zeroNegativeDegree) == defaultErrorCode;
     return codesAreCorrect ? defaultErrorCode : testFailed;
+}
+
+double abs(const double x)
+{
+    return x >= 0 ? x : -x;
 }
 
 ErrorCode testPowerFunctionsWorkTheSame(void)
@@ -145,10 +155,10 @@ ErrorCode testPowerFunctionsWorkTheSame(void)
     return defaultErrorCode;
 }
 
-const char linear[] = "Linear";
-const char logarithmic[] = "Logarithmic";
+const char* linear = "Linear";
+const char* logarithmic = "Logarithmic";
 
-void demonstrateFunctionToUser(const int number, const int degree, const powerFunction powerFunction, const char functionName[])
+void demonstrateFunctionToUser(const int number, const int degree, const powerFunction powerFunction, const char* const functionName)
 {
     ErrorCode errorCode = defaultErrorCode;
     clock_t begin = clock();
