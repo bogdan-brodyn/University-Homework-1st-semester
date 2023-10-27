@@ -14,8 +14,8 @@ typedef enum
 // comparator for quick sorting
 int comp(const void* const element1, const void* const element2)
 {
-    int firstElement = *((int*)element1);
-    int secondElement = *((int*)element2);
+    const int firstElement = *((const int* const)element1);
+    const int secondElement = *((const int* const)element2);
     return firstElement - secondElement;
 }
 
