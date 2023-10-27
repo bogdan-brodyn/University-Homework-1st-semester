@@ -18,5 +18,8 @@
     <ClCompile Include="Test.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="..\Task2\CheckArrayForNumber.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
