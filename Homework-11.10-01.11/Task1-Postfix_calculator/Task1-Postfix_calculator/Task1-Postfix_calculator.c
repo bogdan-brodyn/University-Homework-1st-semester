@@ -2,79 +2,58 @@
 #include <stdlib.h>
 
 #include "../Stack/Stack.h"
+#include "Postfix_calculator.h"
 
-typedef enum
-{
-    calculatorDefaultErrorCode,
-    calculatorMemoryLack
-} ErrorCode;
-
-int calculate(const char sign, const int number1, const int number2)
-{
-    if (sign == '+')
-    {
-        return number1 + number2;
-    }
-    if (sign == '-')
-    {
-        return number1 - number2;
-    }
-    if (sign == '*')
-    {
-        return number1 * number2;
-    }
-    if (sign == '/')
-    {
-        return number1 / number2;
-    }
-}
-
-ErrorCode getMathExpressionResult(const char* const mathExpression, int* result)
-{
-    Stack* stack = createStack();
-    if (stack == NULL)
-    {
-        return calculatorMemoryLack;
-    }
-
-    for (size_t i = 0; mathExpression[i] != '\0'; ++i)
-    {
-        if (mathExpression[i] == ' ')
-        {
-            continue;
+char* get_string(CalculatorErrorCode* errorCode) {
+    int inputStringLength = 0;
+    int inputStringCapacity = 1;
+    char* inputString = (char*)malloc(sizeof(char));
+    char newChar = getchar();
+    while (newChar != '\n') {
+        inputString[(inputStringLength)++] = newChar;
+        if (inputStringLength >= inputStringCapacity) {
+            inputStringCapacity *= 2;
+            char* const temp = (char*)realloc(inputString, inputStringCapacity * sizeof(char));
+            if (temp == NULL)
+            {
+                *errorCode = calculatorMemoryLack;
+                free(inputString);
+                return NULL;
+            }
+            inputString = temp;
         }
-        if ('0' <= mathExpression[i] && mathExpression[i] <= '9')
-        {
-            push(stack, mathExpression[i] - '0');
-            continue;
-        }
-        int topStackElement1 = 0;
-        int topStackElement2 = 0;
-        top(stack, &topStackElement1);
-        pop(stack);
-        top(stack, &topStackElement2);
-        pop(stack);
-        push(stack, calculate(mathExpression[i], topStackElement2, topStackElement1));
+        newChar = getchar();
     }
-    top(stack, result);
-    deleteStack(&stack);
-    return calculatorDefaultErrorCode;
+    inputString[inputStringLength] = '\0';
+    *errorCode = calculatorDefaultErrorCode;
+    return inputString;
 }
 
 int main(void)
 {
-    const int bufferSize = (const int)1e6;
-    char* const mathExpression = (char* const)malloc(bufferSize * sizeof(char));
-    if (mathExpression == NULL)
+    printf("Enter arithmetic expression in postfix form: ");
+    CalculatorErrorCode mathExpressionErrorCode = defaultErrorCode;
+    char* const mathExpression = get_string(&mathExpressionErrorCode);
+    if (mathExpressionErrorCode == calculatorMemoryLack)
     {
+        printf("Program could not read the data from the console\n");
         return calculatorMemoryLack;
     }
-    scanf_s("%[^\n]s", mathExpression, bufferSize);
 
     int mathExpressionResult = 0;
-    getMathExpressionResult(mathExpression, &mathExpressionResult);
-    printf("%d\n", mathExpressionResult);
-
+    CalculatorErrorCode errorCode = getMathExpressionResult(mathExpression, &mathExpressionResult);
+    if (errorCode == calculatorInvalidInput)
+    {
+        printf("Math expression is incorrect\n");
+    }
+    else if (errorCode == calculatorMemoryLack)
+    {
+        printf("Program Executed urgently because of memory lack\n");
+    }
+    else
+    {
+        printf("Result = %d\n", mathExpressionResult);
+    }
     free(mathExpression);
-    return calculatorDefaultErrorCode;
+    return errorCode;
 }

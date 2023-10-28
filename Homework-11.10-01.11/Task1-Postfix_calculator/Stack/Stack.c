@@ -19,11 +19,11 @@ Stack* const createStack(void)
     return (Stack* const)calloc(1, sizeof(Stack));
 }
 
-StackErrorCode deleteStack(Stack** stack)
+void deleteStack(Stack** const stack)
 {
     if (stack == NULL)
     {
-        return nullPtr;
+        return;
     }
     while (!isEmpty(*stack))
     {
@@ -34,7 +34,7 @@ StackErrorCode deleteStack(Stack** stack)
     return defaultErrorCode;
 }
 
-StackErrorCode push(Stack* stack, int value)
+StackErrorCode push(Stack* const stack, const int value)
 {
     if (stack == NULL)
     {
@@ -51,7 +51,7 @@ StackErrorCode push(Stack* stack, int value)
     return defaultErrorCode;
 }
 
-StackErrorCode pop(Stack* stack)
+StackErrorCode pop(Stack* const stack)
 {
     if (stack == NULL)
     {
@@ -67,7 +67,7 @@ StackErrorCode pop(Stack* stack)
     return defaultErrorCode;
 }
 
-StackErrorCode top(Stack* stack, int* topStackElementValue)
+StackErrorCode top(const Stack* const stack, int* const topStackElementValue)
 {
     if (stack == NULL)
     {
@@ -81,7 +81,7 @@ StackErrorCode top(Stack* stack, int* topStackElementValue)
     return defaultErrorCode;
 }
 
-bool isEmpty(Stack* stack)
+bool isEmpty(const Stack* const stack)
 {
     return stack == NULL || stack->top == NULL;
 }

@@ -53,10 +53,9 @@ static TestResult test1(void)
         && pop(stack) == defaultErrorCode
         && topElement1 == 3
         && topElement2 == 2
-        && topElement3 == 1
-        && deleteStack(&stack) == defaultErrorCode
-        && stack == NULL;
-    return testResult ? testPassed : testFailed;
+        && topElement3 == 1;
+    deleteStack(&stack);
+    return testResult && stack == NULL ? testPassed : testFailed;
 }
 
 static TestResult test2(void)
@@ -70,9 +69,7 @@ static TestResult test2(void)
     int topElement1 = 0;
     int topElement2 = 0;
     bool testResult =
-        deleteStack(NULL) == nullPtr
-        && deleteStack(&nullStack) == defaultErrorCode
-        && push(NULL, 1) == nullPtr
+        push(NULL, 1) == nullPtr
         && pop(NULL) == nullPtr
         && top(NULL, &topElement1) == nullPtr
         && topElement1 == 0

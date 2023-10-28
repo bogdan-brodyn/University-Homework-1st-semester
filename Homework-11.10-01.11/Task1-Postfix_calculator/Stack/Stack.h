@@ -14,12 +14,12 @@ typedef struct Stack Stack;
 
 Stack* const createStack(void);
 
-StackErrorCode deleteStack(Stack** stack);
+void deleteStack(Stack** const stack);
 
-StackErrorCode push(Stack* stack, int value);
+StackErrorCode push(Stack* const stack, const int value);
 
-StackErrorCode pop(Stack* stack);
+StackErrorCode pop(Stack* const stack);
 
-StackErrorCode top(Stack* stack, int* topStackElementValue);
+StackErrorCode top(const Stack* const stack, int* const topStackElementValue);
 
-bool isEmpty(Stack* stack);
+bool isEmpty(const Stack* const stack);

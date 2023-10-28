@@ -15,19 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Task1-Postfix_calculator.c">
+    <ClCompile Include="TestPostfixCalculator.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Task1-Postfix_calculator\Postfix_calculator.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\Stack\Stack.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Postfix_calculator.c">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Postfix_calculator.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
