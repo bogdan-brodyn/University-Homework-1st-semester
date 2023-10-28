@@ -70,7 +70,7 @@ double powerLogarithmic(const double number, const int degree, ErrorCode* errorC
     {
         if (degree % 2 == 0)
         {
-            return powerLogarithmic(1 / (number * number), degree / 2, errorCode);
+            return powerLogarithmic(number * number, degree / 2, errorCode);
         }
         return (1 / number) * powerLogarithmic(number, degree + 1, errorCode);
     }
@@ -85,6 +85,10 @@ double powerLogarithmic(const double number, const int degree, ErrorCode* errorC
         return powerLogarithmic(temp, degree / 2, errorCode);
     }
     double result = number * powerLogarithmic(number, degree - 1, errorCode);
+    if (*errorCode != defaultErrorCode)
+    {
+        return 0;
+    }
     *errorCode = checkOverflow(result);
     return result;
 }
@@ -102,29 +106,29 @@ int testErrorCodeCorrectness(const double number, const int degree, const powerF
 
 ErrorCode testPowerFunctionsErrorCodes(void)
 {
-    bool codesAreCorrect =
-        testErrorCodeCorrectness(2, 100, powerLinearly, overflowDouble) == defaultErrorCode
-        && testErrorCodeCorrectness(2, 100, powerLogarithmic, overflowDouble) == defaultErrorCode
+    const bool codesAreCorrect =
+        testErrorCodeCorrectness(10, 300, powerLinearly, overflowDouble) == defaultErrorCode
+        && testErrorCodeCorrectness(10, 300, powerLogarithmic, overflowDouble) == defaultErrorCode
         && testErrorCodeCorrectness(0, -1, powerLinearly, zeroNegativeDegree) == defaultErrorCode
         && testErrorCodeCorrectness(0, -1, powerLogarithmic, zeroNegativeDegree) == defaultErrorCode;
     return codesAreCorrect ? defaultErrorCode : testFailed;
 }
 
-double abs(const double x)
+static double abs(const double x)
 {
     return x >= 0 ? x : -x;
 }
 
 ErrorCode testPowerFunctionsWorkTheSame(void)
 {
-    if (testPowerFunctionsErrorCodes != defaultErrorCode)
+    if (testPowerFunctionsErrorCodes() != defaultErrorCode)
     {
         return testFailed;
     }
 
-    for (int number = -20; number < 20; number++)
+    for (int number = -20; number < 20; ++number)
     {
-        for (int degree = 0; degree < 13; degree++)
+        for (int degree = 0; degree < 13; ++degree)
         {
             ErrorCode errorCodeLinear = defaultErrorCode;
             ErrorCode errorCodeLogarithmic = defaultErrorCode;
@@ -137,9 +141,13 @@ ErrorCode testPowerFunctionsWorkTheSame(void)
         }
     }
 
-    for (int number = -100; number < 100; number++)
+    for (int number = -100; number < 100; ++number)
     {
-        for (int degree = -1000; degree < 0; degree++)
+        if (number == 0)
+        {
+            continue;
+        }
+        for (int degree = -1000; degree < 0; ++degree)
         {
             ErrorCode errorCodeLinear = defaultErrorCode;
             ErrorCode errorCodeLogarithmic = defaultErrorCode;
@@ -174,7 +182,7 @@ void demonstrateFunctionToUser(const int number, const int degree, const powerFu
 
 int main(void)
 {
-    if (!testPowerFunctionsWorkTheSame())
+    if (testPowerFunctionsWorkTheSame() != defaultErrorCode)
     {
         printf("Sorry, program is working incorrectly\n");
         return testFailed;
