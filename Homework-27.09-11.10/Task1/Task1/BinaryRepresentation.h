@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUMBER_SIZE sizeof(int) * 8 + 1
+#define NUMBER_SIZE sizeof(int) * 8
 
 typedef enum
 {

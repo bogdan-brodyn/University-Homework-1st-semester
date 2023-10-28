@@ -4,6 +4,15 @@
 
 #include "BinaryRepresentation.h"
 
+static void printBinaryRepresentation(const char binaryNumber[NUMBER_SIZE])
+{
+    for (unsigned char i = 0; i < NUMBER_SIZE; ++i)
+    {
+        printf("%d", binaryNumber[i]);
+    }
+    printf("\n");
+}
+
 int main(void)
 {
     setlocale(LC_ALL, "Russian");
@@ -20,11 +29,13 @@ int main(void)
 
     char binaryA[NUMBER_SIZE];
     getBinaryNumberRepresentation(a, binaryA);
-    printf("Первое число в двоичном представлении: %s\n", binaryA);
+    printf("Первое число в двоичном представлении: ");
+    printBinaryRepresentation(binaryA);
 
     char binaryB[NUMBER_SIZE];
     getBinaryNumberRepresentation(b, binaryB);
-    printf("Второе число в двоичном представлении: %s\n", binaryB);
+    printf("Второе число в двоичном представлении: ");
+    printBinaryRepresentation(binaryB);
 
     char binarySumAB[NUMBER_SIZE];
     ErrorCode errorCode = addNumbersBinaryRepresentation(binaryA, binaryB, binarySumAB);
@@ -32,6 +43,7 @@ int main(void)
     {
         printf("При сложении произошло переполнение.\n");
     }
-    printf("Сумма чисел в двоичном представлении:  %s\n", binarySumAB);
+    printf("Сумма чисел в двоичном представлении:  ");
+    printBinaryRepresentation(binarySumAB);
     printf("Сумма чисел в десятичном виде: %d\n", getDecimalRepresentation(binarySumAB));
 }
