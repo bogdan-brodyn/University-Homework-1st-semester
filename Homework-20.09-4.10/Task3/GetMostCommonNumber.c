@@ -10,24 +10,6 @@ static int compare(const void* const element1, const void* const element2)
     return firstElement - secondElement;
 }
 
-int getMostCommonNumber(const int* const array, const size_t arraySize, ErrorCode* const errorCode)
-{
-    int* const arrayCopy = (int* const)malloc(sizeof(int) * arraySize);
-    if (arrayCopy == NULL)
-    {
-        *errorCode = memoryLack;
-        return 0;
-    }
-    for (size_t i = 0; i < arraySize; ++i)
-    {
-        arrayCopy[i] = array[i];
-    }
-    qsort(arrayCopy, arraySize, sizeof(int), compare);
-    const int mostCommonNumber = getMostCommonNumberFromSortedArray(arrayCopy, arraySize);
-    free(arrayCopy);
-    return mostCommonNumber;
-}
-
 static int getMostCommonNumberFromSortedArray(const int* const array, const size_t arraySize)
 {
     size_t currentLength = 1;
@@ -52,5 +34,23 @@ static int getMostCommonNumberFromSortedArray(const int* const array, const size
         maxLength = currentLength;
         mostCommonNumber = array[arraySize - 1];
     }
+    return mostCommonNumber;
+}
+
+int getMostCommonNumber(const int* const array, const size_t arraySize, ErrorCode* const errorCode)
+{
+    int* const arrayCopy = (int* const)malloc(sizeof(int) * arraySize);
+    if (arrayCopy == NULL)
+    {
+        *errorCode = memoryLack;
+        return 0;
+    }
+    for (size_t i = 0; i < arraySize; ++i)
+    {
+        arrayCopy[i] = array[i];
+    }
+    qsort(arrayCopy, arraySize, sizeof(int), compare);
+    const int mostCommonNumber = getMostCommonNumberFromSortedArray(arrayCopy, arraySize);
+    free(arrayCopy);
     return mostCommonNumber;
 }
