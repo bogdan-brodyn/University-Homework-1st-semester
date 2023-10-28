@@ -3,14 +3,14 @@
 #include "GetMostCommonNumber.h"
 
 // comparator for quick sorting
-int compare(const void* const element1, const void* const element2)
+static int compare(const void* const element1, const void* const element2)
 {
     const int firstElement = *((const int* const)element1);
     const int secondElement = *((const int* const)element2);
     return firstElement - secondElement;
 }
 
-int getMostCommonNumber(const int* const array, const size_t arraySize, ErrorCode* errorCode)
+int getMostCommonNumber(const int* const array, const size_t arraySize, ErrorCode* const errorCode)
 {
     int* const arrayCopy = (int* const)malloc(sizeof(int) * arraySize);
     if (arrayCopy == NULL)
@@ -23,10 +23,12 @@ int getMostCommonNumber(const int* const array, const size_t arraySize, ErrorCod
         arrayCopy[i] = array[i];
     }
     qsort(arrayCopy, arraySize, sizeof(int), compare);
-    return getMostCommonNumberFromSortedArray(arrayCopy, arraySize);
+    const int mostCommonNumber = getMostCommonNumberFromSortedArray(arrayCopy, arraySize);
+    free(arrayCopy);
+    return mostCommonNumber;
 }
 
-int getMostCommonNumberFromSortedArray(const int* const array, const size_t arraySize)
+static int getMostCommonNumberFromSortedArray(const int* const array, const size_t arraySize)
 {
     size_t currentLength = 1;
     size_t maxLength = 0;

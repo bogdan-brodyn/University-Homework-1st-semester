@@ -14,13 +14,15 @@ typedef enum
     testExecutedWithAnError
 } TestResult;
 
-TestResult randomTest(void)
+static TestResult randomTest(void)
 {
     const size_t randomArraySize = (const size_t)1e6;
     int* const randomArray = (int* const)malloc(sizeof(int) * randomArraySize);
     int* const arrayElementsCount = (int* const)malloc(sizeof(int) * randomArraySize);
     if (randomArray == NULL || arrayElementsCount == NULL)
     {
+        free(randomArray);
+        free(arrayElementsCount);
         return testExecutedWithAnError;
     }
     for (size_t i = 0; i < randomArraySize; ++i)
@@ -33,24 +35,31 @@ TestResult randomTest(void)
         ++arrayElementsCount[randomArray[i]];
     }
 
+    TestResult testResult = testPassed;
     ErrorCode errorCode = defaultErrorCode;
     const int mostCommonNumber = getMostCommonNumber(randomArray, randomArraySize, &errorCode);
     if (errorCode != defaultErrorCode)
     {
-        return testExecutedWithAnError;
+        testResult = testExecutedWithAnError;
     }
-    const int mostCommonNumberCount = arrayElementsCount[mostCommonNumber];
-    for (size_t i = 0; i < randomArraySize; ++i)
+    else
     {
-        if (mostCommonNumberCount < arrayElementsCount[i])
+        const int mostCommonNumberCount = arrayElementsCount[mostCommonNumber];
+        for (size_t i = 0; i < randomArraySize; ++i)
         {
-            return testFailed;
+            if (mostCommonNumberCount < arrayElementsCount[i])
+            {
+                testResult = testFailed;
+                break;
+            }
         }
     }
-    return testPassed;
+    free(randomArray);
+    free(arrayElementsCount);
+    return testResult;
 }
 
-int testGetMostCommonNumber(void)
+static int testGetMostCommonNumber(void)
 {
     int testArrays[WRITTEN_TEST_COUNT][7] = { {1}, {2, 2}, {1, 2, 2}, {3, 3, 2, 1}, {3, 2, 1, 2, 3, 4, 2} };
     const size_t testArraySizes[WRITTEN_TEST_COUNT] = { 1, 2, 3, 4, 7 };
