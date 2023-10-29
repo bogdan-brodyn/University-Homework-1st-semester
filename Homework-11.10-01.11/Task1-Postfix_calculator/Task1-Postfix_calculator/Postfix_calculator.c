@@ -18,7 +18,7 @@ int calculate(const char sign, const int number1, const int number2)
     }
 }
 
-CalculatorErrorCode getMathExpressionResult(const char* const mathExpression, int* result)
+CalculatorErrorCode getMathExpressionResult(const char* const mathExpression, int* const result)
 {
     Stack* stack = createStack();
     if (stack == NULL)

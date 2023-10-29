@@ -5,8 +5,8 @@
 #include "Postfix_calculator.h"
 
 char* get_string(CalculatorErrorCode* errorCode) {
-    int inputStringLength = 0;
-    int inputStringCapacity = 1;
+    size_t inputStringLength = 0;
+    size_t inputStringCapacity = 1;
     char* inputString = (char*)malloc(sizeof(char));
     char newChar = getchar();
     while (newChar != '\n') {

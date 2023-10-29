@@ -17,7 +17,7 @@ bool test(void)
     for (size_t i = 0; i < correctTestCount; ++i)
     {
         int testResult = 0;
-        CalculatorErrorCode errorCode = getMathExpressionResult(correctMathExpressions[i], &testResult);
+        const CalculatorErrorCode errorCode = getMathExpressionResult(correctMathExpressions[i], &testResult);
         if (testResult != correctResults[i] || errorCode != calculatorDefaultErrorCode)
         {
             return false;
@@ -29,7 +29,7 @@ bool test(void)
     for (size_t i = 0; i < incorrectTestCount; ++i)
     {
         int testResult = 0;
-        CalculatorErrorCode errorCode = getMathExpressionResult(incorrectMathExpressions[i], &testResult);
+        const CalculatorErrorCode errorCode = getMathExpressionResult(incorrectMathExpressions[i], &testResult);
         if (errorCode != calculatorInvalidInput)
         {
             return false;

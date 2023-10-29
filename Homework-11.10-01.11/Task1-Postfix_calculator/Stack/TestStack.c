@@ -10,27 +10,6 @@ typedef enum
     testMemoryLack
 } TestResult;
 
-static TestResult test1(void);
-
-static TestResult test2(void);
-
-int main(void)
-{
-    if (test1() != testPassed)
-    {
-        printf("First test failed\n");
-        return testFailed;
-    }
-    printf("First test passed\n");
-    if (test2() != testPassed)
-    {
-        printf("Second test failed\n");
-        return testFailed;
-    }
-    printf("Second test passed\n");
-    return testPassed;
-}
-
 static TestResult test1(void)
 {
     Stack* const stack = createStack();
@@ -78,4 +57,21 @@ static TestResult test2(void)
         && topElement2 == 0;
     deleteStack(&emptyStack);
     return testResult ? testPassed : testFailed;
+}
+
+int main(void)
+{
+    if (test1() != testPassed)
+    {
+        printf("First test failed\n");
+        return testFailed;
+    }
+    printf("First test passed\n");
+    if (test2() != testPassed)
+    {
+        printf("Second test failed\n");
+        return testFailed;
+    }
+    printf("Second test passed\n");
+    return testPassed;
 }
