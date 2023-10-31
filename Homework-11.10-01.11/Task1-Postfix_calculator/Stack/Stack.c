@@ -31,7 +31,6 @@ void deleteStack(Stack** const stack)
     }
     free(*stack);
     *stack = NULL;
-    return defaultErrorCode;
 }
 
 StackErrorCode push(Stack* const stack, const int value)
