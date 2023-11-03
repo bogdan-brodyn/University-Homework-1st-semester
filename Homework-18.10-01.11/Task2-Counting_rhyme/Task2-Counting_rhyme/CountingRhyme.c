@@ -3,7 +3,7 @@
 #include "CountingRhyme.h"
 #include "../CyclicList/CyclicList.h"
 
-CountingRhymeErrorCode getLastElementValue(const int n, const int m, int* const lastElementValue)
+CountingRhymeErrorCode getLastElementValue(const size_t n, const size_t m, int* const lastElementValue)
 {
     CyclicList* cyclicList = createCyclicList();
     if (cyclicList == NULL)

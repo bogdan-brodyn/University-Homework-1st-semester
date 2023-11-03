@@ -2,15 +2,15 @@
 
 #include "CyclicList.h"
 
-struct CyclicList
-{
-    CyclicListElement* tail;
-};
-
 struct CyclicListElement
 {
     int value;
     CyclicListElement* next;
+};
+
+struct CyclicList
+{
+    CyclicListElement* tail;
 };
 
 CyclicList* createCyclicList(void)

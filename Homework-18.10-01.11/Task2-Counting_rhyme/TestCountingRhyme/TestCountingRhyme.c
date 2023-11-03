@@ -9,11 +9,11 @@ typedef enum
     testInterrupted
 } TestResult;
 
-TestResult testCountingRhyme(void)
+static TestResult testCountingRhyme(void)
 {
-    const int testCount = 7;
-    const int ns[] = { 1, 2, 3, 4, 5, 5, 5 };
-    const int ms[] = { 1, 2, 2, 3, 2, 3, 7 };
+    const size_t testCount = 7;
+    const size_t ns[] = { 1, 2, 3, 4, 5, 5, 5 };
+    const size_t ms[] = { 1, 2, 2, 3, 2, 3, 7 };
     const int ks[] = { 1, 1, 3, 1, 3, 4, 4 };
     for (size_t i = 0; i < testCount; ++i)
     {

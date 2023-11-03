@@ -10,6 +10,16 @@ typedef enum
     testMemoryLack
 } TestResult;
 
+static bool getNextAndCheckValue(CyclicList* const cyclicList, CyclicListElement** const cyclicListElement, int correctValue)
+{
+    int currentValue = 0;
+    bool testResult =
+        getNext(cyclicList, cyclicListElement) == cyclicListDefaultErrorCode
+        && getCyclicListElementValue(*cyclicListElement, &currentValue) == cyclicListDefaultErrorCode
+        && currentValue == correctValue;
+    return testResult;
+}
+
 static TestResult test1(void)
 {
     CyclicList* cyclicList = createCyclicList();
@@ -23,29 +33,15 @@ static TestResult test1(void)
         push(cyclicList, 1) == cyclicListDefaultErrorCode
         && push(cyclicList, 2) == cyclicListDefaultErrorCode
         && push(cyclicList, 3) == cyclicListDefaultErrorCode
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 3
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 1
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 2
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 3
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 3)
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 1)
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 2)
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 3)
         && removeNext(&cyclicList, cyclicListElement) == cyclicListDefaultErrorCode
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 2
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 3
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 2)
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 3)
         && removeNext(&cyclicList, cyclicListElement) == cyclicListDefaultErrorCode
-        && getNext(cyclicList, &cyclicListElement) == cyclicListDefaultErrorCode
-        && getCyclicListElementValue(cyclicListElement, &value) == cyclicListDefaultErrorCode
-        && value == 3
+        && getNextAndCheckValue(cyclicList, &cyclicListElement, 3)
         && removeNext(&cyclicList, cyclicListElement) == cyclicListDefaultErrorCode
         && isEmpty(cyclicList);
     deleteCyclicList(&cyclicList);

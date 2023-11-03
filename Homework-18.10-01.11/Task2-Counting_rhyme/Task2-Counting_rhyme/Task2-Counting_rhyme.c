@@ -6,12 +6,12 @@
 int main(void)
 {
     printf("n warriors participate and kill every mth\n");
-    int n = 0;
+    size_t n = 0;
     printf("Enter n: ");
-    scanf_s("%d", &n);
-    int m = 0;
+    scanf_s("%ld", &n);
+    size_t m = 0;
     printf("Enter m: ");
-    scanf_s("%d", &m);
+    scanf_s("%ld", &m);
 
     int k = 0;
     CountingRhymeErrorCode errorCode = getLastElementValue(n, m, &k);
