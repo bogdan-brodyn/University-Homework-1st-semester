@@ -4,10 +4,15 @@
 #include "../Stack/Stack.h"
 #include "CheckBracketSequenceCorrectness.h"
 
-char* get_string(BracketSequenceErrorCode* errorCode) {
+static char* get_string(BracketSequenceErrorCode* errorCode) {
     size_t inputStringLength = 0;
     size_t inputStringCapacity = 1;
     char* inputString = (char*)malloc(sizeof(char));
+    if (inputString == NULL)
+    {
+        *errorCode = bracketSequenceMemoryLack;
+        return NULL
+    }
     char newChar = getchar();
     while (newChar != '\n') {
         inputString[(inputStringLength)++] = newChar;
@@ -41,8 +46,15 @@ int main(void)
     }
 
     bool isBracketSequenceCorrect = false;
-    checkBracketSequenceCorrectness(bracketSequence, &isBracketSequenceCorrect);
-    printf(isBracketSequenceCorrect ? "Bracket sequence is correct\n" : "Bracket sequence is incorrect\n");
+    BracketSequenceErrorCode errorCode = checkBracketSequenceCorrectness(bracketSequence, &isBracketSequenceCorrect);
+    if (errorCode == bracketSequenceMemoryLack)
+    {
+        printf("Program had been executed urgently because of memory lack\n");
+    }
+    else
+    {
+        printf(isBracketSequenceCorrect ? "Bracket sequence is correct\n" : "Bracket sequence is incorrect\n");
+    }
 
     free(bracketSequence);
     return bracketSequenceDefaultErrorCode;

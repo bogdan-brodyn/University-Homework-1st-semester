@@ -34,7 +34,7 @@ BracketSequenceErrorCode checkBracketSequenceCorrectness(const char* const brack
             break;
         }
     }
-    *isCorrect = *isCorrect && isEmpty(stack);
+    *isCorrect &= isEmpty(stack);
     deleteStack(&stack);
     return bracketSequenceDefaultErrorCode;
 }

@@ -17,9 +17,9 @@ static TestResult test1(void)
     {
         return testMemoryLack;
     }
-    int topElement1 = 0;
-    int topElement2 = 0;
-    int topElement3 = 0;
+    char topElement1 = 0;
+    char topElement2 = 0;
+    char topElement3 = 0;
     bool testResult =
         push(stack, 1) == defaultErrorCode
         && push(stack, 2) == defaultErrorCode
@@ -45,8 +45,8 @@ static TestResult test2(void)
     {
         return testMemoryLack;
     }
-    int topElement1 = 0;
-    int topElement2 = 0;
+    char topElement1 = 0;
+    char topElement2 = 0;
     bool testResult =
         push(NULL, 1) == nullPtr
         && pop(NULL) == nullPtr
@@ -59,19 +59,13 @@ static TestResult test2(void)
     return testResult ? testPassed : testFailed;
 }
 
+static void printTestResult(const char* const testName, TestResult(*testFuction)(void))
+{
+    printf(testFuction() == testPassed ? "%s test passed\n" : "%s test failed\n", testName);
+}
+
 int main(void)
 {
-    if (test1() != testPassed)
-    {
-        printf("First test failed\n");
-        return testFailed;
-    }
-    printf("First test passed\n");
-    if (test2() != testPassed)
-    {
-        printf("Second test failed\n");
-        return testFailed;
-    }
-    printf("Second test passed\n");
-    return testPassed;
+    printTestResult("First", test1);
+    printTestResult("Second", test2);
 }

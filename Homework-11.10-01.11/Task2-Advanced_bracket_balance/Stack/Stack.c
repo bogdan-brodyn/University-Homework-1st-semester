@@ -3,10 +3,10 @@
 
 #include "Stack.h"
 
-typedef struct
+typedef struct StackElement
 {
     char value;
-    struct StructElement* next;
+    struct StackElement* next;
 } StackElement;
 
 struct Stack
