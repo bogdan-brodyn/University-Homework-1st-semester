@@ -3,62 +3,65 @@
 
 #include "SortedList.h"
 
+#define DEFAULT_EXIT_CODE 0
 #define MEMORY_LACK 1
 
-int main(void)
+typedef enum
 {
-    SortedList* sortedList = createSortedList();
-    if (sortedList == NULL)
-    {
-        printf("Program has executed urgently because of memory lack\n");
-        return MEMORY_LACK;
-    }
+    exitCommand,
+    addValueCommand,
+    deleteValueCommand,
+    printSortedListCommand
+} Command;
+
+static void printCommandResult(const SortedListError errorCode)
+{
+    printf(errorCode == sortedListDefaultErrorCode ? "the command was executed successfully\n" :
+        "The program had been executed urgently because of an error\n");
+}
+
+static void dialogMode(SortedList** const sortedList)
+{
     while (true)
     {
         int command = 0;
+        int value = 0;
         printf("Enter command: ");
         scanf_s("%d", &command);
-        if (command == 0)
+
+        switch (command)
         {
+        case exitCommand:
             printf("The program had been executed successfully\n");
-            break;
-        }
-        if (command == 1)
-        {
-            int value = 0;
+            return;
+        case addValueCommand:
             scanf_s("%d", &value);
             SortedListError errorCode = addValue(sortedList, value);
-            if (errorCode == sortedListDefaultErrorCode)
+            printCommandResult(errorCode);
+            if (errorCode != sortedListDefaultErrorCode)
             {
-                printf("Value had been successfully added\n");
+                return;
             }
-            else
-            {
-                printf("The program had been executed urgently because of an error\n");
-                break;
-            }
-        }
-        else if (command == 2)
-        {
-            int value = 0;
+            break;
+        case deleteValueCommand:
             scanf_s("%d", &value);
-            SortedListError errorCode = deleteValue(sortedList, value);
-            if (errorCode == sortedListDefaultErrorCode)
-            {
-                printf("Value had been successfully deleted\n");
-            }
-            else
-            {
-                printf("The program had been executed urgently because of an error\n");
-                break;
-            }
-        }
-        else
-        {
+            deleteValue(*sortedList, value);
+            printCommandResult(sortedListDefaultErrorCode);
+            break;
+        case printSortedListCommand:
             printf("Sorted list: ");
-            printSortedList(sortedList);
+            printSortedList(*sortedList);
+            break;
+        default:
+            printf("Invalid input\n");
         }
     }
+}
+
+int main(void)
+{
+    SortedList* sortedList = NULL;
+    dialogMode(&sortedList);
     deleteSortedList(&sortedList);
-    return 0;
+    return DEFAULT_EXIT_CODE;
 }

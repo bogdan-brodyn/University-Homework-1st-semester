@@ -15,11 +15,6 @@ struct SortedList
     SortedListElement* head;
 };
 
-SortedList* createSortedList(void)
-{
-    return (SortedList*)calloc(1, sizeof(SortedList));
-}
-
 void deleteSortedList(SortedList** const sortedList)
 {
     if (sortedList == NULL)
@@ -34,33 +29,19 @@ void deleteSortedList(SortedList** const sortedList)
     *sortedList = NULL;
 }
 
-bool findValue(const SortedList* const sortedList, const int value)
-{
-    if (sortedList == NULL)
-    {
-        return false;
-    }
-    SortedListElement* currentElement = sortedList->head;
-    while (currentElement != NULL)
-    {
-        if (currentElement->value == value)
-        {
-            return true;
-        }
-        currentElement = currentElement->next;
-    }
-    return false;
-}
-
-SortedListError addValue(SortedList* const sortedList, const int value)
+SortedListError addValue(SortedList** const sortedList, const int value)
 {
     if (sortedList == NULL)
     {
         return sortedListNullPointer;
     }
-    if (findValue(sortedList, value))
+    if (*sortedList == NULL)
     {
-        return sortedListDefaultErrorCode;
+        *sortedList = (SortedList* const)calloc(1, sizeof(sortedList));
+        if (*sortedList == NULL)
+        {
+            return sortedListMemoryLack;
+        }
     }
 
     SortedListElement* const newElement = (SortedListElement* const)calloc(1, sizeof(SortedListElement));
@@ -70,56 +51,32 @@ SortedListError addValue(SortedList* const sortedList, const int value)
     }
     newElement->value = value;
 
-    if (sortedList->head == NULL)
+    newElement->next = (*sortedList)->head;
+    (*sortedList)->head = newElement;
+    for (SortedListElement* currentElement = (*sortedList)->head; currentElement->next != NULL 
+        && currentElement->next->value < currentElement->value; currentElement = currentElement->next)
     {
-        sortedList->head = newElement;
-        return sortedListDefaultErrorCode;
-    }
-    if (sortedList->head->value > value)
-    {
-        newElement->next = sortedList->head;
-        sortedList->head = newElement;
-        return sortedListDefaultErrorCode;
-    }
-
-    SortedListElement* currentElement = sortedList->head;
-    while (true)
-    {
-        if (currentElement->next == NULL)
-        {
-            currentElement->next = newElement;
-            break;
-        }
-        if (currentElement->next->value > value)
-        {
-            newElement->next = currentElement->next;
-            currentElement->next = newElement;
-            break;
-        }
-        currentElement = currentElement->next;
+        currentElement->value = currentElement->next->value;
+        currentElement->next->value = value;
     }
     return sortedListDefaultErrorCode;
 }
 
-SortedListError deleteValue(SortedList* const sortedList, const int value)
+void deleteValue(SortedList* const sortedList, const int value)
 {
     if (sortedList == NULL)
     {
-        return sortedListNullPointer;
+        return;
     }
     SortedListElement* currentElement = sortedList->head;
     if (currentElement->value == value)
     {
         sortedList->head = currentElement->next;
         free(currentElement);
-        return sortedListDefaultErrorCode;
+        return;
     }
-    while (true)
+    for (; currentElement->next != NULL; currentElement = currentElement->next)
     {
-        if (currentElement->next == NULL)
-        {
-            break;
-        }
         if (currentElement->next->value == value)
         {
             SortedListElement* temp = currentElement->next;
@@ -127,15 +84,14 @@ SortedListError deleteValue(SortedList* const sortedList, const int value)
             free(temp);
             break;
         }
-        currentElement = currentElement->next;
     }
-    return sortedListDefaultErrorCode;
 }
 
 void printSortedList(const SortedList* const sortedList)
 {
     if (sortedList == NULL)
     {
+        printf("\n");
         return;
     }
     for (SortedListElement* currentElement = sortedList->head; currentElement != NULL; currentElement = currentElement->next)
@@ -149,4 +105,3 @@ bool isEmpty(const SortedList* const sortedList)
 {
     return sortedList == NULL || sortedList->head == NULL;
 }
-
