@@ -14,9 +14,14 @@ BracketSequenceErrorCode checkBracketSequenceCorrectness(const char* const brack
     *isCorrect = true;
     for (size_t i = 0; bracketSequence[i] != '\0'; ++i)
     {
-        if (bracketSequence[i] == '(' || bracketSequence[i] == '[' || bracketSequence[i] == '{')
+        const char currentChar = bracketSequence[i];
+        if (currentChar == '(' || currentChar == '[' || currentChar == '{')
         {
-            push(stack, bracketSequence[i]);
+            push(stack, currentChar);
+            continue;
+        }
+        if (currentChar != ')' && currentChar != ']' && currentChar != '}')
+        {
             continue;
         }
         char lastOpenBracket = 0;
@@ -26,9 +31,9 @@ BracketSequenceErrorCode checkBracketSequenceCorrectness(const char* const brack
             break;
         }
         pop(stack);
-        if (lastOpenBracket == '(' && bracketSequence[i] != ')'
-            || lastOpenBracket == '[' && bracketSequence[i] != ']'
-            || lastOpenBracket == '{' && bracketSequence[i] != '}')
+        if (lastOpenBracket == '(' && currentChar != ')'
+            || lastOpenBracket == '[' && currentChar != ']'
+            || lastOpenBracket == '{' && currentChar != '}')
         {
             *isCorrect = false;
             break;

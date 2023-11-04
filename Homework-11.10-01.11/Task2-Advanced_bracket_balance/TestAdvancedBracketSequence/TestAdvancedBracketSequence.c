@@ -28,7 +28,7 @@ TestResult runTest(const char* const bracketSequences, const bool correctAnswer)
 TestResult testAdvancedBracketBalance(void)
 {
     const size_t correctTestCount = 9;
-    const char correctBracketSequences[][17] = { "", "()", "[]", "{}", "{()}", "([])", "[](({}))", "()()[]", "[[{({()})}]]([])" };
+    const char correctBracketSequences[][17] = { "", "()", "[]", "{}", "{a(12)}", "([a43]sd)", "[fd]((23{}))", "(fgf)()11[11]54", "[[{({()})}]]([])" };
     for (size_t i = 0; i < correctTestCount; ++i)
     {
         TestResult testResult = runTest(correctBracketSequences[i], true);
@@ -39,7 +39,7 @@ TestResult testAdvancedBracketBalance(void)
     }
 
     const size_t incorrectTestCount = 8;
-    const char incorrectBracketSequences[][6] = { "(]", "[}", "{[]", "[])", "))((", "{)(}", "[{})", "[][)]"};
+    const char incorrectBracketSequences[][19] = { "(]", "[}", "{[]", "[])", "))((", "{13)2(34}", "[1{332}fbas)a", "[as]vc v[cbf)sdf]r"};
     for (size_t i = 0; i < incorrectTestCount; ++i)
     {
         TestResult testResult = runTest(incorrectBracketSequences[i], false);
@@ -48,7 +48,7 @@ TestResult testAdvancedBracketBalance(void)
             return testResult;
         }
     }
-    return true;
+    return testPassed;
 }
 
 int main(void)
@@ -58,10 +58,13 @@ int main(void)
     {
         printf("Test executed urgently because of memory lack\n");
     }
-    if (testResult == testFailed)
+    else if (testResult == testFailed)
     {
         printf("Program has not passed the test\n");
     }
-    printf("Program has passed all the tests\n");
-    return testPassed;
+    else
+    {
+        printf("Program has passed all the tests\n");
+    }
+    return testResult;
 }

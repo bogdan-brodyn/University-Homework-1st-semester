@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Stack\Stack.c" />
     <ClCompile Include="..\Task2-Advanced_bracket_balance\CheckBracketSequenceCorrectness.c" />
     <ClCompile Include="TestAdvancedBracketSequence.c" />
   </ItemGroup>
