@@ -16,7 +16,8 @@ typedef enum
 
 static void printCommandResult(const SortedListError errorCode)
 {
-    printf(errorCode == sortedListDefaultErrorCode ? "the command was executed successfully\n" :
+    printf(errorCode == sortedListDefaultErrorCode ? 
+        "the command was executed successfully\n" :
         "The program had been executed urgently because of an error\n");
 }
 

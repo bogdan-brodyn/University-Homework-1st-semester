@@ -19,4 +19,5 @@ void printSortedList(const SortedList* const sortedList);
 
 bool isEmpty(const SortedList* const sortedList);
 
-bool compareList(const SortedList* const sortedList, const int* const arrayToCompare, const int arrayToCompareSize);
+bool compareList(const SortedList* const sortedList, 
+    const int* const arrayToCompare, const size_t arrayToCompareSize);

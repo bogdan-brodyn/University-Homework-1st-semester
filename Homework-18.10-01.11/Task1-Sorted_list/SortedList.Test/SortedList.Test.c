@@ -36,6 +36,7 @@ static TestResult runTest(void)
 int main(void)
 {
     TestResult testResult = runTest();
-    printf(testResult == testPassed ? "Program has passed all the tests\n" : "Program has failed the test\n");
+    printf(testResult == testPassed ? 
+        "Program has passed all the tests\n" : "Program has failed the test\n");
     return testResult;
 }

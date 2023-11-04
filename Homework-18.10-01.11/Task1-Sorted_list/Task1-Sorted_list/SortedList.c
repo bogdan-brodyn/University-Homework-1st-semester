@@ -53,7 +53,7 @@ SortedListError addValue(SortedList** const sortedList, const int value)
 
     newElement->next = (*sortedList)->head;
     (*sortedList)->head = newElement;
-    for (SortedListElement* currentElement = (*sortedList)->head; currentElement->next != NULL 
+    for (SortedListElement* currentElement = (*sortedList)->head; currentElement->next != NULL
         && currentElement->next->value < currentElement->value; currentElement = currentElement->next)
     {
         currentElement->value = currentElement->next->value;
@@ -94,7 +94,8 @@ void printSortedList(const SortedList* const sortedList)
         printf("\n");
         return;
     }
-    for (SortedListElement* currentElement = sortedList->head; currentElement != NULL; currentElement = currentElement->next)
+    for (SortedListElement* currentElement = sortedList->head; 
+        currentElement != NULL; currentElement = currentElement->next)
     {
         printf("%d ", currentElement->value);
     }
@@ -106,16 +107,19 @@ bool isEmpty(const SortedList* const sortedList)
     return sortedList == NULL || sortedList->head == NULL;
 }
 
-bool compareList(const SortedList* const sortedList, const int* const arrayToCompare, const size_t arrayToCompareSize)
+bool compareList(const SortedList* const sortedList, 
+    const int* const arrayToCompare, const size_t arrayToCompareSize)
 {
     if (sortedList == NULL || arrayToCompare == NULL)
     {
         return sortedList == arrayToCompare;
     }
     size_t arrayToComparePointer = 0;
-    for (SortedListElement* currentElement = sortedList->head; currentElement != NULL; currentElement = currentElement->next, ++arrayToComparePointer)
+    for (SortedListElement* currentElement = sortedList->head; currentElement != NULL;
+        currentElement = currentElement->next, ++arrayToComparePointer)
     {
-        if (arrayToComparePointer >= arrayToCompareSize || currentElement->value != arrayToCompare[arrayToComparePointer])
+        if (arrayToComparePointer >= arrayToCompareSize 
+            || currentElement->value != arrayToCompare[arrayToComparePointer])
         {
             return false;
         }
