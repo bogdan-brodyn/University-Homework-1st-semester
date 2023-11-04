@@ -105,3 +105,20 @@ bool isEmpty(const SortedList* const sortedList)
 {
     return sortedList == NULL || sortedList->head == NULL;
 }
+
+bool compareList(const SortedList* const sortedList, const int* const arrayToCompare, const size_t arrayToCompareSize)
+{
+    if (sortedList == NULL || arrayToCompare == NULL)
+    {
+        return sortedList == arrayToCompare;
+    }
+    size_t arrayToComparePointer = 0;
+    for (SortedListElement* currentElement = sortedList->head; currentElement != NULL; currentElement = currentElement->next, ++arrayToComparePointer)
+    {
+        if (arrayToComparePointer >= arrayToCompareSize || currentElement->value != arrayToCompare[arrayToComparePointer])
+        {
+            return false;
+        }
+    }
+    return arrayToComparePointer == arrayToCompareSize;
+}
