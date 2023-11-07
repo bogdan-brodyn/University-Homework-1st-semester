@@ -30,6 +30,44 @@ static Node* getNext(const Node* const currentElement, const int key)
     return currentElement;
 }
 
+static Node* createNode(const int key, const char* const value)
+{
+    Node* const newElement = (Node* const)calloc(1, sizeof(Node));
+    if (newElement == NULL)
+    {
+        return NULL;
+    }
+    newElement->key = key;
+    const size_t valueSize = strlen(value) + 1;
+    newElement->value = (char*)malloc(valueSize * sizeof(char));
+    if (newElement->value == NULL)
+    {
+        free(newElement);
+        return NULL;
+    }
+    strcpy_s(newElement->value, valueSize, value);
+    return newElement;
+}
+
+static void deleteNode(Node** node)
+{
+    if (node == NULL)
+    {
+        return;
+    }
+    free((*node)->value);
+    free(*node);
+    *node = NULL;
+}
+
+static void copyNode(Node* destination, Node* source)
+{
+    free(destination->value);
+    destination->key = source->key;
+    destination->value = source->value;
+    free(source);
+}
+
 DictionaryErrorCode add(Dictionary** const dictionary, 
     const int key, const char* const value)
 {
@@ -38,28 +76,18 @@ DictionaryErrorCode add(Dictionary** const dictionary,
         return dictionaryNullPointer;
     }
 
-    Node* const newElement = (Node* const)calloc(1, sizeof(Node));
+    Node* const newElement = createNode(key, value);
     if (newElement == NULL)
     {
         return dictionaryMemoryLack;
     }
-    newElement->key = key;
-    const size_t valueSize = strlen(value) + 1;
-    newElement->value = (char*)malloc(valueSize * sizeof(char));
-    if (newElement->value == NULL)
-    {
-        free(newElement);
-        return dictionaryMemoryLack;
-    }
-    strcpy_s(newElement->value, valueSize, value);
 
     if (*dictionary == NULL)
     {
         *dictionary = (Dictionary* const)calloc(1, sizeof(Dictionary));
         if (*dictionary == NULL)
         {
-            free(newElement->value);
-            free(newElement);
+            deleteNode(&newElement);
             return dictionaryMemoryLack;
         }
         (*dictionary)->root = newElement;
@@ -71,9 +99,8 @@ DictionaryErrorCode add(Dictionary** const dictionary,
     {
         if (currentElement->key == key)
         {
-            free(newElement->value);
-            free(newElement);
-            return dictionaryUsedKey;
+            copyNode(currentElement, newElement);
+            break;
         }
         if (currentElement->key < key && currentElement->rightChild == NULL)
         {
@@ -125,54 +152,37 @@ bool isContained(const Dictionary* const dictionary, const int key)
     return false;
 }
 
+static void setParentNode(Dictionary* const dictionary,
+    const Node* const node, Node* const parent, const Node* const nodeReplacement)
+{
+    if (dictionary->root == node)
+    {
+        dictionary->root = nodeReplacement;
+    }
+    else if (parent->key < node->key)
+    {
+        parent->rightChild = nodeReplacement;
+    }
+    else
+    {
+        parent->leftChild = nodeReplacement;
+    }
+}
+
 static void movePointers(Dictionary* const dictionary, 
     const Node* const node, Node* const parent)
 {
     if (node->leftChild == NULL && node->rightChild == NULL)
     {
-        if (dictionary->root == node)
-        {
-            dictionary->root = NULL;
-        }
-        else if (parent->key < node->key)
-        {
-            parent->rightChild = NULL;
-        }
-        else
-        {
-            parent->leftChild = NULL;
-        }
+        setParentNode(dictionary, node, parent, NULL);
     }
     else if (node->leftChild != NULL && node->rightChild == NULL)
     {
-
-        if (dictionary->root == node)
-        {
-            dictionary->root = node->leftChild;
-        }
-        else if (parent->key < node->key)
-        {
-            parent->rightChild = node->leftChild;
-        }
-        else
-        {
-            parent->leftChild = node->leftChild;
-        }
+        setParentNode(dictionary, node, parent, node->leftChild);
     }
     else if (node->leftChild == NULL && node->rightChild != NULL)
     {
-        if (dictionary->root == node)
-        {
-            dictionary->root = node->rightChild;
-        }
-        else if (parent->key < node->key)
-        {
-            parent->rightChild = node->rightChild;
-        }
-        else
-        {
-            parent->leftChild = node->rightChild;
-        }
+        setParentNode(dictionary, node, parent, node->rightChild);
     }
 }
 
@@ -192,16 +202,12 @@ void removeKey(Dictionary* const dictionary, const int key)
         for (; nodeToEmplace->leftChild != NULL; 
             tempParent = nodeToEmplace, nodeToEmplace = nodeToEmplace->leftChild);
         movePointers(dictionary, nodeToEmplace, tempParent);
-        free(nodeToRemove->value);
-        nodeToRemove->key = nodeToEmplace->key;
-        nodeToRemove->value = nodeToEmplace->value;
-        free(nodeToEmplace);
+        copyNode(nodeToRemove, nodeToEmplace);
     }
     else
     {
         movePointers(dictionary, nodeToRemove, parent);
-        free(nodeToRemove->value);
-        free(nodeToRemove);
+        deleteNode(&nodeToRemove);
     }
 }
 
