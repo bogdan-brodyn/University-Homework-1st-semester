@@ -4,10 +4,40 @@
 #include "List.h"
 #include "MergeSort.h"
 
-#define FILE_WAS_NOT_FOUND 1
+#define DEFAULT_EXIT_CODE 0
+#define FILE_WAS_NOT_FOUND_EXIT_CODE 1
 #define BY_NAMES 1
 #define BY_PHONE_NUMBERS 2
-#define MAX_NAME_LENGTH 100
+
+static char* getName(FILE* stream) {
+    size_t inputStringLength = 0;
+    size_t inputStringCapacity = 1;
+    char* inputString = (char*)malloc(sizeof(char));
+    if (inputString == NULL)
+    {
+        return NULL;
+    }
+    while (inputStringLength < 3 || 
+        !(inputString[inputStringLength - 3] == ' '
+        && inputString[inputStringLength - 2] == '-'
+        && inputString[inputStringLength - 1] == ' '))
+    {
+        char newChar = fgetc(stream);
+        inputString[(inputStringLength)++] = newChar;
+        if (inputStringLength >= inputStringCapacity) {
+            inputStringCapacity *= 2;
+            char* const temp = (char*)realloc(inputString, inputStringCapacity * sizeof(char));
+            if (temp == NULL)
+            {
+                free(inputString);
+                return NULL;
+            }
+            inputString = temp;
+        }
+    }
+    inputString[inputStringLength - 3] = '\0';
+    return inputString;
+}
 
 int main(void)
 {
@@ -16,35 +46,28 @@ int main(void)
     if (file == NULL)
     {
         printf("File was not found\n");
-        return FILE_WAS_NOT_FOUND;
+        return FILE_WAS_NOT_FOUND_EXIT_CODE;
     }
 
     List* list = NULL;
-    char buffer[MAX_NAME_LENGTH];
-    unsigned long long phoneNumber = 0;
-    while (fscanf_s(file, "%s - %lld", &buffer, MAX_NAME_LENGTH, &phoneNumber) != EOF)
+    while (!feof(file))
     {
-        pushBack(&list, createListElement(buffer, phoneNumber));
+        char* name = getName(file);
+        unsigned long long phoneNumber = 0;
+        fscanf_s(file, "%lld\n", &phoneNumber);
+        pushBack(&list, createListElement(name, phoneNumber));
+        free(name);
     }
+    fclose(file);
 
     int sortingType = 0;
     printf("If you want to sort the data by names, enter %d\n", BY_NAMES);
     printf("If you want to sort the data by phone numbers, enter %d\n", BY_PHONE_NUMBERS);
     scanf_s("%d", &sortingType);
-    List* sortedList = sortingType == BY_NAMES ? 
-        mergeSort(list, compareByName) : mergeSort(list, compareByPhoneNumber);
+    Compare compare = sortingType == BY_NAMES ? compareByName : compareByPhoneNumber;
+    mergeSort(&list, compare);
 
-    while (!isEmpty(sortedList))
-    {
-        char* currentName = NULL;
-        unsigned long long currentPhoneNumber = 0;
-        getName(getFront(sortedList), &currentName);
-        getPhoneNumber(getFront(sortedList), &currentPhoneNumber);
-        printf("%s - %lld\n", currentName, currentPhoneNumber);
-        popFront(sortedList);
-    }
-
-    fclose(file);
+    printList(list);
     deleteList(&list);
-    deleteList(&sortedList);
+    return DEFAULT_EXIT_CODE;
 }

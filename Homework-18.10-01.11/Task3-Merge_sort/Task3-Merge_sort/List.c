@@ -11,7 +11,8 @@ struct ListElement
     ListElement* next;
 };
 
-ListElement* createListElement(const char* const name, const unsigned long long phoneNumber)
+ListElement* createListElement(const char* const name, 
+    const unsigned long long phoneNumber)
 {
     ListElement* listElement = (ListElement*)calloc(1, sizeof(ListElement));
     if (listElement == NULL)
@@ -33,15 +34,6 @@ ListElement* createListElement(const char* const name, const unsigned long long 
     return listElement;
 }
 
-ListElement* getCopy(const ListElement* const listElement)
-{
-    char* name = NULL;
-    unsigned long long phoneNumber = 0;
-    getName(listElement, &name);
-    getPhoneNumber(listElement, &phoneNumber);
-    return createListElement(name, phoneNumber);
-}
-
 void deleteListElement(ListElement* listElement)
 {
     if (listElement == NULL)
@@ -54,28 +46,17 @@ void deleteListElement(ListElement* listElement)
 
 ListElement* getNext(const ListElement* const listElement)
 {
-    return listElement == NULL ? NULL : listElement->next;
+    return listElement->next;
 }
 
-ListErrorCode getName(const ListElement* const listElement, char** const name)
+char* getName(const ListElement* const listElement)
 {
-    if (listElement == NULL || name == NULL)
-    {
-        return listNullPointer;
-    }
-    *name = listElement->name;
-    return listDefaultErrorCode;
+    return listElement->name;
 }
 
-ListErrorCode getPhoneNumber(
-    const ListElement* const listElement, unsigned long long* const phoneNumber)
+unsigned long long getPhoneNumber(const ListElement* const listElement)
 {
-    if (listElement == NULL || phoneNumber == NULL)
-    {
-        return listNullPointer;
-    }
-    *phoneNumber = listElement->phoneNumber;
-    return listDefaultErrorCode;
+    return listElement->phoneNumber;
 }
 
 
@@ -92,15 +73,36 @@ bool isEmpty(const List* const list)
 
 ListElement* getFront(const List* const list)
 {
-    return list == NULL ? NULL : list->front;
+    return list->front;
+}
+
+ListErrorCode passFront(List** destination, List** source)
+{
+    ListElement* passingListElement = (*source)->front;
+    (*source)->front = passingListElement->next;
+    if ((*source)->front == NULL)
+    {
+        (*source)->back = NULL;
+        deleteList(source);
+    }
+    passingListElement->next = NULL;
+    return pushBack(destination, passingListElement);
+}
+
+void popFront(List* const list)
+{
+    if (isEmpty(list))
+    {
+        return;
+    }
+    ListElement* frontListElement = getFront(list);
+    list->front = frontListElement->next;
+    list->back = list->front == NULL ? NULL : list->back;
+    deleteListElement(frontListElement);
 }
 
 ListErrorCode pushBack(List** const list, ListElement* const listElement)
 {
-    if (list == NULL || listElement == NULL)
-    {
-        return listNullPointer;
-    }
     if (*list == NULL)
     {
         *list = (List*)calloc(1, sizeof(List));
@@ -121,24 +123,44 @@ ListErrorCode pushBack(List** const list, ListElement* const listElement)
     return listDefaultErrorCode;
 }
 
-void popFront(List* const list)
+void concatenateLists(List** destination, List** source)
 {
-    if (isEmpty(list))
+    if (isEmpty(*source))
     {
         return;
     }
-    ListElement* frontListElement = getFront(list);
-    list->front = frontListElement->next;
-    list->back = list->front == NULL ? NULL : list->back;
-    deleteListElement(frontListElement);
+    if (isEmpty(*destination))
+    {
+        passFront(destination, source);
+    }
+    if (!isEmpty(*source))
+    {
+        (*destination)->back->next = (*source)->front;
+        (*destination)->back = (*source)->back;
+    }
+    (*source)->front = NULL;
+    (*source)->back = NULL;
+    deleteList(source);
 }
 
 void deleteList(List** const list)
 {
+    if (list == NULL)
+    {
+        return;
+    }
     while (!isEmpty(*list))
     {
         popFront(*list);
     }
     free(*list);
     *list = NULL;
+}
+
+void printList(const List* const list)
+{
+    for (ListElement* i = list->front; i != NULL; i = getNext(i))
+    {
+        printf("%s - %lld\n", i->name, i->phoneNumber);
+    }
 }

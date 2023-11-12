@@ -12,18 +12,16 @@ typedef enum
 
 typedef struct ListElement ListElement;
 
-ListElement* createListElement(char* const name, const unsigned long long phoneNumber);
-
-ListElement* getCopy(const ListElement* const listElement);
+ListElement* createListElement(char* const name, 
+    const unsigned long long phoneNumber);
 
 void deleteListElement(ListElement* listElement);
 
 ListElement* getNext(const ListElement* const listElement);
 
-ListErrorCode getName(const ListElement* const listElement, char** const name);
+char* getName(const ListElement* const listElement);
 
-ListErrorCode getPhoneNumber(
-    const ListElement* const listElement, unsigned long long* const phoneNumber);
+unsigned long long getPhoneNumber(const ListElement* const listElement);
 
 
 typedef struct List List;
@@ -32,8 +30,14 @@ bool isEmpty(const List* const list);
 
 ListElement* getFront(const List* const list);
 
-ListErrorCode pushBack(List** const list, ListElement* const listElement);
+ListErrorCode passFront(List** destination, List** source);
 
 void popFront(List* const list);
 
+ListErrorCode pushBack(List** const list, ListElement* const listElement);
+
+void concatenateLists(List** destination, List** source);
+
 void deleteList(List** const list);
+
+void printList(const List* const list);

@@ -6,37 +6,17 @@
 #include "../Task3-Merge_sort/List.h"
 #include "../Task3-Merge_sort/MergeSort.h"
 
-typedef enum
-{
-    testPassed,
-    testFailed
-} TestResult;
-
-static TestResult getValueAndCompare(const ListElement* const listElement, 
+static bool getValueAndCompare(const ListElement* const listElement, 
     const char* const name, const unsigned long long phoneNumber)
 {
-    char* elementName = NULL;
-    unsigned long long elementPhoneNumber = 0;
-    const ListErrorCode errorCode1 = getName(listElement, &elementName);
-    const ListErrorCode errorCode2 = getPhoneNumber(listElement, &elementPhoneNumber);
-    bool AreNamesSame = true;
-    for (size_t i = 0; ; ++i)
-    {
-        if (name[i] != elementName[i])
-        {
-            AreNamesSame = false;
-            break;
-        }
-        if (name[i] == '\0' || elementName[i] == '\0')
-        {
-            break;
-        }
-    }
-    return errorCode1 == listDefaultErrorCode && errorCode2 == listDefaultErrorCode 
-        && phoneNumber == elementPhoneNumber && AreNamesSame ? testPassed : testFailed;
+    ListElement* temp = createListElement(name, phoneNumber);
+    int compareByNameResult = compareByName(listElement, temp);
+    int compareByPhoneNumberResult = compareByPhoneNumber(listElement, temp);
+    deleteListElement(temp);
+    return compareByNameResult == 0 && compareByPhoneNumberResult == 0;
 }
 
-static TestResult testList(void)
+static bool testList(void)
 {
     List* list = NULL;
     bool isTestPassed =
@@ -45,21 +25,21 @@ static TestResult testList(void)
         && pushBack(&list, createListElement("bb", 22)) == listDefaultErrorCode
         && pushBack(&list, createListElement("cc", 33)) == listDefaultErrorCode;
     isTestPassed &=
-        getValueAndCompare(getFront(list), "aa", 11) == testPassed
-        && getValueAndCompare(getNext(getFront(list)), "bb", 22) == testPassed
-        && getValueAndCompare(getNext(getNext(getFront(list))), "cc", 33) == testPassed;
+        getValueAndCompare(getFront(list), "aa", 11)
+        && getValueAndCompare(getNext(getFront(list)), "bb", 22)
+        && getValueAndCompare(getNext(getNext(getFront(list))), "cc", 33);
     popFront(list);
     isTestPassed &=
-        getValueAndCompare(getFront(list), "bb", 22) == testPassed
-        && getValueAndCompare(getNext(getFront(list)), "cc", 33) == testPassed;
+        getValueAndCompare(getFront(list), "bb", 22)
+        && getValueAndCompare(getNext(getFront(list)), "cc", 33);
     popFront(list);
     isTestPassed &=
-        getValueAndCompare(getFront(list), "cc", 33) == testPassed;
+        getValueAndCompare(getFront(list), "cc", 33);
     deleteList(&list);
-    return isTestPassed && list == NULL ? testPassed : testFailed;
+    return isTestPassed && list == NULL;
 }
 
-static TestResult testMergeSort(void)
+static bool testMergeSort(void)
 {
     srand((unsigned int)time(NULL));
     List* randomList = NULL;
@@ -69,27 +49,26 @@ static TestResult testMergeSort(void)
         ListElement* newListElement = createListElement(NULL, rand());
         pushBack(&randomList, newListElement);
     }
-    List* sortedList = mergeSort(randomList, compareByPhoneNumber);
-    ListElement* prev = getFront(sortedList);
+    mergeSort(&randomList, compareByPhoneNumber);
+    ListElement* prev = getFront(randomList);
     ListElement* cur = getNext(prev);
-    TestResult testResult = testPassed;
+    bool testResult = true;
     for (; cur != NULL; prev = cur, cur = getNext(cur))
     {
         if (compareByPhoneNumber(prev, cur) > 0)
         {
-            testResult = testFailed;
+            testResult = false;
             break;
         }
     }
     deleteList(&randomList);
-    deleteList(&sortedList);
     return testResult;
 }
 
 int main(void)
 {
-    printf(testList() == testPassed ? "Program has passed the first test\n" :
+    printf(testList() ? "Program has passed the first test\n" :
         "Program has failed the first test\n");
-    printf(testMergeSort() == testPassed ? "Program has passed the second test\n" :
+    printf(testMergeSort() ? "Program has passed the second test\n" :
         "Program has failed the second test\n");
 }
