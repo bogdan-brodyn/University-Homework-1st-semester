@@ -12,4 +12,10 @@ int compareByName(const ListElement* const listElement1,
 int compareByPhoneNumber(const ListElement* const listElement1,
     const ListElement* const listElement2);
 
-void mergeSort(List** const list, Compare compare);
+typedef enum
+{
+    defaultErrorCode,
+    sortFailed
+} MergeSortErrorCode;
+
+bool mergeSort(List** const list, const Compare compare);

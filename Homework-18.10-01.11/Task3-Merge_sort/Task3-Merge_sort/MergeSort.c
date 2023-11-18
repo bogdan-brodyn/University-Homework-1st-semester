@@ -23,13 +23,27 @@ int compareByPhoneNumber(const ListElement* const listElement1,
     return getPhoneNumber(listElement1) - getPhoneNumber(listElement2);
 }
 
-static List* merge(List** leftList, List** rightList, const Compare compare)
+static List* merge(List** leftList, List** rightList, 
+    const Compare compare, ListErrorCode* errorCode)
 {
+    if (*errorCode != defaultErrorCode)
+    {
+        deleteList(leftList);
+        deleteList(rightList);
+        return NULL;
+    }
     List* mergeList = NULL;
     while (!isEmpty(*leftList) && !isEmpty(*rightList))
     {
-        passFront(&mergeList, 
+        *errorCode = passFront(&mergeList,
             compare(getFront(*leftList), getFront(*rightList)) <= 0 ? leftList : rightList);
+        if (*errorCode != defaultErrorCode)
+        {
+            deleteList(&mergeList);
+            deleteList(leftList);
+            deleteList(rightList);
+            return NULL;
+        }
     }
     concatenateLists(&mergeList, leftList);
     concatenateLists(&mergeList, rightList);
@@ -37,25 +51,36 @@ static List* merge(List** leftList, List** rightList, const Compare compare)
 }
 
 static List* mergeSortRecursive(List** const list, 
-    const size_t sortAreaSize, const Compare compare)
+    const size_t sortAreaSize, const Compare compare, ListErrorCode* errorCode)
 {
+    if (*errorCode != defaultErrorCode)
+    {
+        return;
+    }
     if (sortAreaSize == 1)
     {
         List* newList = NULL;
-        passFront(&newList, list);
+        *errorCode = passFront(&newList, list);
         return newList;
     }
-    size_t leftPartSize = sortAreaSize / 2;
-    List* leftList = mergeSortRecursive(list, leftPartSize, compare);
-    List* rightList = mergeSortRecursive(list, sortAreaSize - leftPartSize, compare);
-    return merge(&leftList, &rightList, compare);
+    const size_t leftPartSize = sortAreaSize / 2;
+    List* leftList = mergeSortRecursive(list, leftPartSize, compare, errorCode);
+    List* rightList = mergeSortRecursive(list, sortAreaSize - leftPartSize, compare, errorCode);
+    return merge(&leftList, &rightList, compare, errorCode);
 }
 
-void mergeSort(List** const list, const Compare compare)
+bool mergeSort(List** const list, const Compare compare)
 {
     size_t arraySize = 1;
     ListElement* listBackElement = getFront(*list);
     for (; getNext(listBackElement) != NULL; 
         listBackElement = getNext(listBackElement), ++arraySize);
-    *list = mergeSortRecursive(list, arraySize, compare);
+    ListErrorCode* errorCode = defaultErrorCode;
+    List* sortedList = mergeSortRecursive(list, arraySize, compare, &errorCode);
+    if (errorCode == defaultErrorCode)
+    {
+        *list = sortedList;
+        return true;
+    }
+    return false;
 }

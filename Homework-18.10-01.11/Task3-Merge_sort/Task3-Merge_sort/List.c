@@ -46,7 +46,7 @@ void deleteListElement(ListElement* listElement)
 
 ListElement* getNext(const ListElement* const listElement)
 {
-    return listElement->next;
+    return listElement != NULL ? listElement->next : NULL;
 }
 
 char* getName(const ListElement* const listElement)
@@ -76,16 +76,22 @@ ListElement* getFront(const List* const list)
     return list->front;
 }
 
-ListErrorCode passFront(List** destination, List** source)
+static ListElement* ejectFrontListElement(List* list)
 {
-    ListElement* passingListElement = (*source)->front;
-    (*source)->front = passingListElement->next;
-    if ((*source)->front == NULL)
+    ListElement* frontListElement = getFront(list);
+    list->front = frontListElement->next;
+    list->back = list->front != NULL ? list->back : NULL;
+    return frontListElement;
+}
+
+ListErrorCode passFront(List** const destination, List** const source)
+{
+    ListElement* passingListElement = ejectFrontListElement(*source);
+    passingListElement->next = NULL;
+    if (isEmpty(*source))
     {
-        (*source)->back = NULL;
         deleteList(source);
     }
-    passingListElement->next = NULL;
     return pushBack(destination, passingListElement);
 }
 
@@ -95,14 +101,15 @@ void popFront(List* const list)
     {
         return;
     }
-    ListElement* frontListElement = getFront(list);
-    list->front = frontListElement->next;
-    list->back = list->front == NULL ? NULL : list->back;
-    deleteListElement(frontListElement);
+    deleteListElement(ejectFrontListElement(list));
 }
 
 ListErrorCode pushBack(List** const list, ListElement* const listElement)
 {
+    if (listElement == NULL)
+    {
+        return listNullPointer;
+    }
     if (*list == NULL)
     {
         *list = (List*)calloc(1, sizeof(List));
@@ -123,15 +130,16 @@ ListErrorCode pushBack(List** const list, ListElement* const listElement)
     return listDefaultErrorCode;
 }
 
-void concatenateLists(List** destination, List** source)
+ListErrorCode concatenateLists(List** destination, List** source)
 {
+    ListErrorCode errorCode = listDefaultErrorCode;
     if (isEmpty(*source))
     {
-        return;
+        return errorCode;
     }
     if (isEmpty(*destination))
     {
-        passFront(destination, source);
+        errorCode = passFront(destination, source);
     }
     if (!isEmpty(*source))
     {
@@ -141,6 +149,7 @@ void concatenateLists(List** destination, List** source)
     (*source)->front = NULL;
     (*source)->back = NULL;
     deleteList(source);
+    return errorCode;
 }
 
 void deleteList(List** const list)

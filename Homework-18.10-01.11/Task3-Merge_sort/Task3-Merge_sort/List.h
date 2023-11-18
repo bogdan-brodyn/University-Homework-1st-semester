@@ -36,7 +36,7 @@ void popFront(List* const list);
 
 ListErrorCode pushBack(List** const list, ListElement* const listElement);
 
-void concatenateLists(List** destination, List** source);
+ListErrorCode concatenateLists(List** destination, List** source);
 
 void deleteList(List** const list);
 

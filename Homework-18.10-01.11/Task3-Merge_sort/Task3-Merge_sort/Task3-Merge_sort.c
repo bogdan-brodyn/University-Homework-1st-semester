@@ -6,6 +6,8 @@
 
 #define DEFAULT_EXIT_CODE 0
 #define FILE_WAS_NOT_FOUND_EXIT_CODE 1
+#define INVALID_INPUT_EXIT_CODE 2
+#define MEMORY_LACK_EXIT_CODE 3
 #define BY_NAMES 1
 #define BY_PHONE_NUMBERS 2
 
@@ -53,9 +55,19 @@ int main(void)
     while (!feof(file))
     {
         char* name = getName(file);
+        if (name == NULL)
+        {
+            printf("Invalid input\n");
+            return INVALID_INPUT_EXIT_CODE;
+        }
         unsigned long long phoneNumber = 0;
         fscanf_s(file, "%lld\n", &phoneNumber);
-        pushBack(&list, createListElement(name, phoneNumber));
+        ListErrorCode errorCode = pushBack(&list, createListElement(name, phoneNumber));
+        if (errorCode != listDefaultErrorCode)
+        {
+            printf("Memory lack\n");
+            return MEMORY_LACK_EXIT_CODE;
+        }
         free(name);
     }
     fclose(file);
@@ -65,7 +77,11 @@ int main(void)
     printf("If you want to sort the data by phone numbers, enter %d\n", BY_PHONE_NUMBERS);
     scanf_s("%d", &sortingType);
     Compare compare = sortingType == BY_NAMES ? compareByName : compareByPhoneNumber;
-    mergeSort(&list, compare);
+    if (!mergeSort(&list, compare))
+    {
+        printf("Program couldn't sort the array because of memory lack\n");
+        return MEMORY_LACK_EXIT_CODE;
+    }
 
     printList(list);
     deleteList(&list);
