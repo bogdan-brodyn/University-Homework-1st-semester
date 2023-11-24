@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Dictionary\Dictionary.c" />
+    <ClCompile Include="..\Dictionary\String.c" />
     <ClCompile Include="Task1-AVL_tree.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

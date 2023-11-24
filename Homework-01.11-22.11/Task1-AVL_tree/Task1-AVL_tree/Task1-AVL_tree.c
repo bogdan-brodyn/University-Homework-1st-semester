@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "../Dictionary/Dictionary.h"
+#include "../Dictionary/String.h"
 
 #define DEFAULT_EXIT_CODE 0
 #define MEMORY_LACK 1
@@ -15,38 +16,6 @@ typedef enum
     isContainedCommand,
     removeKeyCommand
 } Command;
-
-static char* get_string(void) {
-    size_t inputStringLength = 0;
-    size_t inputStringCapacity = 1;
-    char* inputString = (char*)malloc(sizeof(char));
-    if (inputString == NULL)
-    {
-        return NULL;
-    }
-    char newChar = getchar();
-    while (newChar == ' ')
-    {
-        newChar = getchar();
-    }
-    while (newChar != '\n' && newChar != '-')
-    {
-        inputString[(inputStringLength)++] = newChar;
-        if (inputStringLength >= inputStringCapacity) {
-            inputStringCapacity *= 2;
-            char* const temp = (char*)realloc(inputString, inputStringCapacity * sizeof(char));
-            if (temp == NULL)
-            {
-                free(inputString);
-                return NULL;
-            }
-            inputString = temp;
-        }
-        newChar = getchar();
-    }
-    inputString[inputStringLength] = '\0';
-    return inputString;
-}
 
 static void dialogMode(Dictionary** const dictionary)
 {
@@ -63,12 +32,12 @@ static void dialogMode(Dictionary** const dictionary)
             printf("The program had been executed successfully\n");
             return;
         }
-        key = get_string();
+        key = getString();
 
         switch (command)
         {
         case addCommand:
-            value = get_string();
+            value = getString();
             if (value == NULL)
             {
                 printf("Invalid input\n");
@@ -104,7 +73,7 @@ static void dialogMode(Dictionary** const dictionary)
 int main(void)
 {
     printf("If you want to exit, enter: %d\n", exitCommand);
-    printf("If you want to add key, enter: %d key - value\n", addCommand);
+    printf("If you want to add key, enter: %d key-value\n", addCommand);
     printf("If you want to get value by key, enter: %d key\n", getCommand);
     printf("If you want to check if the key is contained, enter: %d key\n", isContainedCommand);
     printf("If you want to remove key, enter: %d key\n", removeKeyCommand);

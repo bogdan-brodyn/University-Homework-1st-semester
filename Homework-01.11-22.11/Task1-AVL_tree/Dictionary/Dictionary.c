@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "Dictionary.h"
+#include "String.h"
 
 typedef struct Node
 {
@@ -18,22 +19,22 @@ struct Dictionary
     Node* root;
 };
 
-static unsigned char height(Node* node)
+static unsigned char height(const Node* const node)
 {
     return node != NULL ? node->height : 0;
 }
 
-static char difference(Node* node)
+static char difference(const Node* const node)
 {
     return height(node->left) - height(node->right);
 }
 
-static void fixHeight(Node* node)
+static void fixHeight(Node* const node)
 {
     node->height = max(height(node->left), height(node->right)) + 1;
 }
 
-static Node* rotateLeft(Node* a)
+static Node* rotateLeft(Node* const a)
 {
     Node* b = a->right;
     a->right = b->left;
@@ -43,7 +44,7 @@ static Node* rotateLeft(Node* a)
     return b;
 }
 
-static Node* rotateRight(Node* a)
+static Node* rotateRight(Node* const a)
 {
     Node* b = a->left;
     a->left = b->right;
@@ -53,19 +54,19 @@ static Node* rotateRight(Node* a)
     return b;
 }
 
-static Node* bigRotateLeft(Node* a)
+static Node* bigRotateLeft(Node* const a)
 {
     a->right = rotateRight(a->right);
     return rotateLeft(a);
 }
 
-static Node* bigRotateRight(Node* a)
+static Node* bigRotateRight(Node* const a)
 {
     a->left = rotateLeft(a->left);
     return rotateRight(a);
 }
 
-static Node* balance(Node* node)
+static Node* balance(Node* const node)
 {
     fixHeight(node);
     if (difference(node) == -2)
@@ -79,18 +80,6 @@ static Node* balance(Node* node)
             bigRotateRight(node) : rotateRight(node);
     }
     return node;
-}
-
-static char compare(const char* const string1, const char* const string2)
-{
-    for (size_t i = 0; string1[i] != '\0' || string2[i] != '\0'; ++i)
-    {
-        if (string1[i] != string2[i])
-        {
-            return string1[i] - string2[i];
-        }
-    }
-    return 0;
 }
 
 static Node* getNext(const Node* const currentElement, const char* const key)
@@ -115,10 +104,8 @@ static Node* createNode(const char* const key, const char* const value)
         return NULL;
     }
     newElement->height = 1;
-    const size_t keySize = strlen(key) + 1;
-    const size_t valueSize = strlen(value) + 1;
-    newElement->key = (char*)malloc(keySize * sizeof(char));
-    newElement->value = (char*)malloc(valueSize * sizeof(char));
+    newElement->key = getStringCopy(key);
+    newElement->value = getStringCopy(value);
     if (newElement->key == NULL || newElement->value == NULL)
     {
         free(newElement->key);
@@ -126,12 +113,10 @@ static Node* createNode(const char* const key, const char* const value)
         free(newElement);
         return NULL;
     }
-    strcpy_s(newElement->key, keySize, key);
-    strcpy_s(newElement->value, valueSize, value);
     return newElement;
 }
 
-static void deleteNode(Node** node)
+static void deleteNode(Node** const node)
 {
     if (node == NULL)
     {
@@ -143,7 +128,7 @@ static void deleteNode(Node** node)
     *node = NULL;
 }
 
-static void copyNode(Node* destination, Node* source)
+static void moveNodeData(Node* const destination, const Node* const source)
 {
     free(destination->key);
     free(destination->value);
@@ -152,7 +137,7 @@ static void copyNode(Node* destination, Node* source)
     free(source);
 }
 
-Node* insertKey(Node* node, Node* nodeToInsert)
+static Node* insertKey(Node* const node, const Node* const nodeToInsert)
 {
     if (node == NULL)
     {
@@ -161,7 +146,7 @@ Node* insertKey(Node* node, Node* nodeToInsert)
     const char compareResult = compare(node->key, nodeToInsert->key);
     if (compareResult == 0)
     {
-        copyNode(node, nodeToInsert);
+        moveNodeData(node, nodeToInsert);
     }
     else if (compareResult < 0)
     {
@@ -205,7 +190,7 @@ DictionaryErrorCode add(Dictionary** const dictionary,
 }
 
 DictionaryErrorCode get(const Dictionary* const dictionary, 
-    const char* const key, char** const value)
+    const char* const key, const char** const value)
 {
     if (dictionary == NULL || value == NULL)
     {
@@ -225,27 +210,17 @@ DictionaryErrorCode get(const Dictionary* const dictionary,
 
 bool isContained(const Dictionary* const dictionary, const char* const key)
 {
-    if (dictionary == NULL)
-    {
-        return false;
-    }
-    for (Node* currentElement = dictionary->root; currentElement != NULL;
-        currentElement = getNext(currentElement, key))
-    {
-        if (compare(currentElement->key, key) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
+    char* value = NULL;
+    DictionaryErrorCode searchResult = get(dictionary, key, &value);
+    return searchResult == dictionaryDefaultErrorCode;
 }
 
-static Node* findMinKey(Node* node)
+static Node* findMinKey(const Node* const node)
 {
     return node->left != NULL ? findMinKey(node->left) : node;
 }
 
-static Node* removeMinKey(Node* node)
+static Node* removeMinKey(Node* const node)
 {
     if (node->left == NULL)
     {
@@ -272,14 +247,16 @@ static Node* removeKeyRecursive(Node* node, const char* const key)
     }
     else
     {
-        if (node->right == NULL)
-        {
-            return node->left;
-        }
-        Node* min = findMinKey(node->right);
-        min->right = removeMinKey(node->right);
-        min->left = node->left;
+        Node* left = node->left;
+        Node* right = node->right;
         deleteNode(&node);
+        if (right == NULL)
+        {
+            return left;
+        }
+        Node* min = findMinKey(right);
+        min->right = removeMinKey(right);
+        min->left = left;
         return balance(min);
     }
     return balance(node);
@@ -290,6 +267,18 @@ void removeKey(Dictionary* const dictionary, const char* const key)
     dictionary->root = removeKeyRecursive(dictionary->root, key);
 }
 
+static Node* deleteMinKeyWithNoBalance(Node* const node)
+{
+    if (node->left == NULL)
+    {
+        Node* temp = node->right;
+        deleteNode(&node);
+        return temp;
+    }
+    node->left = deleteMinKeyWithNoBalance(node->left);
+    return node;
+}
+
 void deleteDictionary(Dictionary** const dictionary)
 {
     if (dictionary == NULL || *dictionary == NULL)
@@ -298,7 +287,7 @@ void deleteDictionary(Dictionary** const dictionary)
     }
     while ((*dictionary)->root != NULL)
     {
-        removeKey(*dictionary, (*dictionary)->root->key);
+        (*dictionary)->root = deleteMinKeyWithNoBalance((*dictionary)->root);
     }
     free(*dictionary);
     *dictionary = NULL;

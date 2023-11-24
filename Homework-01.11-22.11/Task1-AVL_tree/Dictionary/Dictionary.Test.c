@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "Dictionary.h"
+#include "String.h"
 
 typedef enum
 {
@@ -19,39 +20,32 @@ static TestResult getAndCompareValue(const Dictionary* const dictionary,
     {
         return testFailed;
     }
-    for (size_t i = 0; correctValue[i] != '\0' || value[i] != '\0'; ++i)
-    {
-        if (correctValue[i] != value[i])
-        {
-            return testFailed;
-        }
-    }
-    return testPassed;
+    return compare(value, correctValue) == 0 ? testPassed : testFailed;
 }
 
 static TestResult test1(void)
 {
     Dictionary* dictionary = NULL;
     bool testResult =
-        add(&dictionary, "2", "b") == dictionaryDefaultErrorCode
-        && add(&dictionary, "1", "a") == dictionaryDefaultErrorCode
-        && add(&dictionary, "3", "c") == dictionaryDefaultErrorCode
-        && add(&dictionary, "4", "d") == dictionaryDefaultErrorCode
-        && getAndCompareValue(dictionary, "1", "a") == testPassed
-        && getAndCompareValue(dictionary, "2", "b") == testPassed
-        && getAndCompareValue(dictionary, "3", "c") == testPassed
-        && getAndCompareValue(dictionary, "4", "d") == testPassed
-        && add(&dictionary, "3", "e") == dictionaryDefaultErrorCode
-        && getAndCompareValue(dictionary, "3", "e") == testPassed;
-    removeKey(dictionary, "3");
+        add(&dictionary, "1a3", "a") == dictionaryDefaultErrorCode
+        && add(&dictionary, "1b1", "b") == dictionaryDefaultErrorCode
+        && add(&dictionary, "acd", "c") == dictionaryDefaultErrorCode
+        && add(&dictionary, "abcdf", "d") == dictionaryDefaultErrorCode
+        && getAndCompareValue(dictionary, "1a3", "a") == testPassed
+        && getAndCompareValue(dictionary, "1b1", "b") == testPassed
+        && getAndCompareValue(dictionary, "acd", "c") == testPassed
+        && getAndCompareValue(dictionary, "abcdf", "d") == testPassed
+        && add(&dictionary, "acd", "e") == dictionaryDefaultErrorCode
+        && getAndCompareValue(dictionary, "acd", "e") == testPassed;
+    removeKey(dictionary, "acd");
     testResult &=
-        getAndCompareValue(dictionary, "1", "a") == testPassed
-        && getAndCompareValue(dictionary, "2", "b") == testPassed
-        && getAndCompareValue(dictionary, "4", "d") == testPassed;
-    removeKey(dictionary, "2");
+        getAndCompareValue(dictionary, "1a3", "a") == testPassed
+        && getAndCompareValue(dictionary, "1b1", "b") == testPassed
+        && getAndCompareValue(dictionary, "abcdf", "d") == testPassed;
+    removeKey(dictionary, "1b1");
     testResult &=
-        getAndCompareValue(dictionary, "1", "a") == testPassed
-        && getAndCompareValue(dictionary, "4", "d") == testPassed;
+        getAndCompareValue(dictionary, "1a3", "a") == testPassed
+        && getAndCompareValue(dictionary, "abcdf", "d") == testPassed;
     deleteDictionary(&dictionary);
     return testResult && dictionary == NULL ? testPassed : testFailed;
 }
@@ -74,7 +68,7 @@ static TestResult test3(void)
 {
     srand((unsigned int)time(NULL));
     Dictionary* dictionary = NULL;
-    for (size_t i = 0; i < (size_t)1e5; ++i)
+    for (size_t i = 0; i < 1e5; ++i)
     {
         char tempKey[6] = "12345";
         char tempValue[6] = "12345";
@@ -85,24 +79,32 @@ static TestResult test3(void)
         }
         add(&dictionary, tempKey, tempValue);
     }
+    for (size_t i = 0; i < 1e5; ++i)
+    {
+        char tempKey[6] = "12345";
+        for (char j = 0; j < 5; ++j)
+        {
+            tempKey[j] = (char)rand();
+        }
+        removeKey(dictionary, tempKey);
+    }
     bool balance = checkBalance(dictionary);
     size_t height = getSearchTreeHeight(dictionary);
     deleteDictionary(&dictionary);
-    return balance && height <= 50;
+    return balance && height <= 50 ? testPassed : testFailed;
+}
+
+TestResult printTestResult(TestResult(*testFunction)(void), const char* const testName)
+{
+    TestResult testResult = testFunction();
+    printf(testResult == testPassed ? "Program has passed the %s test\n" :
+        "Program has failed the %s test\n", testName);
+    return testResult;
 }
 
 int main(void)
 {
-    TestResult test1Result = test1();
-    printf(test1Result == testPassed ? "Program has passed the first test\n" : 
-        "Program has failed the first test\n");
-    TestResult test2Result = test2();
-    printf(test2Result == testPassed ? "Program has passed the second test\n" :
-        "Program has failed the second test\n");
-    TestResult test3Result = test3();
-    printf(test2Result == testPassed ? "Program has passed the third test\n" :
-        "Program has failed the third test\n");
-    return test1Result == testPassed 
-        && test2Result == testPassed
-        && test3Result == testPassed ? testPassed : testFailed;
+    return printTestResult(test1, "first") == testPassed
+        && printTestResult(test2, "second") == testPassed
+        && printTestResult(test3, "third") == testPassed ? testPassed : testFailed;
 }
