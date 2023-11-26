@@ -17,6 +17,10 @@ char compare(const char* const string1, const char* const string2)
 
 char* getStringCopy(const char* const string)
 {
+    if (string == NULL)
+    {
+        return NULL;
+    }
     const size_t stringSize = strlen(string) + 1;
     char* stringCopy = (char*)malloc(stringSize * sizeof(char));
     errno_t errorCode = strcpy_s(stringCopy, stringSize, string);
@@ -38,17 +42,13 @@ char* getString(FILE* stream)
         return NULL;
     }
     char newChar = fgetc(stream);
-    while (newChar != EOF && (newChar == ' ' || newChar == '\n'
-        || newChar == '.' || newChar == ',' || newChar == '!' 
-        || newChar == '?' || newChar == '"'))
+    while (newChar != EOF && (newChar == ' ' || newChar == '\n'))
     {
         newChar = fgetc(stream);
     }
-    while (newChar != EOF && newChar != ' ' && newChar != '\n'
-        && newChar != '.' && newChar != ',' && newChar != '!' 
-        && newChar != '?' && newChar != '"')
+    while (newChar != EOF && newChar != ' ' && newChar != '\n')
     {
-        inputString[(inputStringLength)++] = newChar;
+        inputString[inputStringLength++] = newChar;
         if (inputStringLength >= inputStringCapacity) {
             inputStringCapacity *= 2;
             char* const temp = (char*)realloc(inputString, inputStringCapacity * sizeof(char));

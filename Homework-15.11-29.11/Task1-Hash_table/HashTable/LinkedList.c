@@ -42,6 +42,18 @@ static void deleteListElement(ListElement** const listElement)
 
 LinkedListErrorCode pushString(LinkedList** const linkedList, const char* const string)
 {
+    if (*linkedList != NULL)
+    {
+        for (ListElement* current = (*linkedList)->front;
+            current != NULL; current = current->next)
+        {
+            if (compare(current->string, string) == 0)
+            {
+                ++(current->count);
+                return defaultLinkedListErrorCode;
+            }
+        }
+    }
     ListElement* newListElement = createListElement(string);
     if (newListElement == NULL)
     {
@@ -52,20 +64,11 @@ LinkedListErrorCode pushString(LinkedList** const linkedList, const char* const 
         *linkedList = (LinkedList*)calloc(1, sizeof(LinkedList));
         if (*linkedList == NULL)
         {
+            deleteListElement(&newListElement);
             return memoryLackLinkedListErrorCode;
         }
         (*linkedList)->front = newListElement;
         return defaultLinkedListErrorCode;
-    }
-    for (ListElement* current = (*linkedList)->front;
-        current != NULL; current = current->next)
-    {
-        if (compare(current->string, string) == 0)
-        {
-            ++(current->count);
-            deleteListElement(&newListElement);
-            return defaultLinkedListErrorCode;
-        }
     }
     newListElement->next = (*linkedList)->front;
     (*linkedList)->front = newListElement;

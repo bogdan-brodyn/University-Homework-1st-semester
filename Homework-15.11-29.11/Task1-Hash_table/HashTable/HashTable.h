@@ -10,7 +10,9 @@ typedef enum
 
 typedef struct HashTable HashTable;
 
-HashTableErrorCode addWord(HashTable** const hashTable, const char* const word);
+HashTable* createHashTable(const size_t size);
+
+HashTableErrorCode addWord(const HashTable* const hashTable, const char* const word);
 
 size_t getWordCount(const HashTable* const hashTable, const char* const word);
 

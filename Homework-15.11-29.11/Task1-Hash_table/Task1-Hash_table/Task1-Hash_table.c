@@ -1,27 +1,42 @@
 ﻿#include <stdio.h>
-#include <locale.h>
 
 #include "../HashTable/HashTable.h"
 #include "../String/String.h"
 
 #define DEFAULT_ERROR_CODE 0
 #define FILE_NOT_FOUND 1
+#define MEMORY_LACK_ERROR_CODE 2
+#define RUNTIME_ERROR_CODE 3
+#define INPUT_STREAM "../text.txt"
 
 int main(void)
 {
-    setlocale(LC_ALL, "Russian");
+    size_t hashTableSize = 0;
+    printf("Enter hash table size: ");
+    scanf_s("%lld", &hashTableSize);
+
     FILE* file = NULL;
-    errno_t errorCode = fopen_s(&file, "../text.txt", "r");
+    errno_t errorCode = fopen_s(&file, INPUT_STREAM, "r");
     if (errorCode != 0)
     {
         printf("Program has not found the text file\n");
         return FILE_NOT_FOUND;
     }
-    HashTable* hashTable = NULL;
+    HashTable* hashTable = createHashTable(hashTableSize);
+    if (hashTable == NULL)
+    {
+        printf("Memory lack\n");
+        return MEMORY_LACK_ERROR_CODE;
+    }
     char* currentWord = getString(file);
     for (; !feof(file) && currentWord != NULL; currentWord = getString(file))
     {
-        addWord(&hashTable, currentWord);
+        HashTableErrorCode errorCode = addWord(hashTable, currentWord);
+        if (errorCode != defaultHashTableErrorCode)
+        {
+            printf("Runtime error\n");
+            return RUNTIME_ERROR_CODE;
+        }
     }
     free(currentWord);
     fclose(file);
