@@ -26,6 +26,7 @@ int main(void)
     if (hashTable == NULL)
     {
         printf("Memory lack\n");
+        fclose(file);
         return MEMORY_LACK_ERROR_CODE;
     }
     char* currentWord = getString(file);
@@ -35,6 +36,9 @@ int main(void)
         if (errorCode != defaultHashTableErrorCode)
         {
             printf("Runtime error\n");
+            fclose(file);
+            free(currentWord);
+            deleteHashTable(&hashTable);
             return RUNTIME_ERROR_CODE;
         }
     }
