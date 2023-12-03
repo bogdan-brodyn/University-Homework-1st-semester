@@ -19,7 +19,7 @@ typedef struct PriorityQueueValue
 inline int compare(const PriorityQueueValue value1,
     const PriorityQueueValue value2)
 {
-    return (int)(value1.length - value2.length);
+    return (int)value1.length - value2.length;
 }
 
 typedef struct PriorityQueue PriorityQueue;
