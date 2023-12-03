@@ -5,7 +5,7 @@
 struct List
 {
     size_t size;
-    size_t capasity;
+    size_t capacity;
     ListValue* array;
 };
 
@@ -22,7 +22,7 @@ static List* createList(void)
         return NULL;
     }
     list->size = 0;
-    list->capasity = 1;
+    list->capacity = 1;
     list->array = (ListValue*)malloc(sizeof(ListValue));
     if (list->array == NULL)
     {
@@ -43,16 +43,16 @@ ListErrorCode pushBack(List** const list, const ListValue value)
         }
     }
 
-    if ((*list)->size >= (*list)->capasity)
+    if ((*list)->size >= (*list)->capacity)
     {
         ListValue* temp = (ListValue*)realloc((*list)->array,
-            2 * (*list)->capasity * sizeof(ListValue));
+            2 * (*list)->capacity * sizeof(ListValue));
         if (temp == NULL)
         {
             return memoryLackListErrorCode;
         }
         (*list)->array = temp;
-        (*list)->capasity *= 2;
+        (*list)->capacity *= 2;
     }
     (*list)->array[(*list)->size++] = value;
     return defaultListErrorCode;

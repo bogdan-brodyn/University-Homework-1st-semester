@@ -11,7 +11,7 @@ struct Graph
     List** length;
 };
 
-void getNode(const Graph* const graph, const size_t node, 
+void getNodeNeighbours(const Graph* const graph, const size_t node, 
     List** const neighbors, List** const lengths)
 {
     *neighbors = graph->graph[node];

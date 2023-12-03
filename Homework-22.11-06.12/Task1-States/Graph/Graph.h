@@ -13,7 +13,7 @@ typedef enum
 
 typedef struct Graph Graph;
 
-void getNode(const Graph* const graph, const size_t node,
+void getNodeNeighbours(const Graph* const graph, const size_t node,
     List** const neighbors, List** const lengths);
 
 Graph* createGraph(const size_t nodesCount);

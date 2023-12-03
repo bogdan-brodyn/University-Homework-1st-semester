@@ -26,7 +26,7 @@ int test(const char* const testFilePath, const int testNumber)
     Graph* graph = getGraphFromStream(file, &n);
     if (graph == NULL)
     {
-        printf("Memory lack. Test: %d\n", testNumber);
+        printf("Memory lack in getGraphFromStream. Test: %d\n", testNumber);
         fclose(file);
         return TEST_FAILED;
     }
@@ -34,7 +34,7 @@ int test(const char* const testFilePath, const int testNumber)
     size_t* capitals = getCapitalsFromStream(file, &k);
     if (capitals == NULL)
     {
-        printf("Memory lack. Test: %d\n", testNumber);
+        printf("Memory lack in getCapitalsFromStream. Test: %d\n", testNumber);
         deleteGraph(&graph);
         fclose(file);
         return TEST_FAILED;
@@ -60,6 +60,7 @@ int test(const char* const testFilePath, const int testNumber)
     if (colours == NULL)
     {
         printf("Memory lack. Test: %d\n", testNumber);
+        free(correctColours);
         return TEST_FAILED;
     }
     for (size_t node = 0; node < n; ++node)
@@ -67,11 +68,13 @@ int test(const char* const testFilePath, const int testNumber)
         if (colours[node] != correctColours[node])
         {
             printf("Incorrect answer. Test: %d\n", testNumber);
+            free(correctColours);
             free(colours);
             return TEST_FAILED;
         }
     }
     printf("Test passed. Test: %d\n", testNumber);
+    free(correctColours);
     free(colours);
     return TEST_PASSED;
 }

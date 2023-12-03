@@ -22,7 +22,14 @@ size_t* colorizeStates(const Graph* const graph, const size_t n,
     {
         PriorityQueueValue capital = { .node = capitals[v],
             .colour = v, .length = 0 };
-        push(&queue, capital);
+        PriorityQueueErrorCode errorCode = push(&queue, capital);
+        if (errorCode != defaultPriorityQueueErrorCode)
+        {
+            deleteQueue(&queue);
+            free(colours);
+            free(used);
+            return NULL;
+        }
     }
     while (!isEmpty(queue))
     {
@@ -35,15 +42,23 @@ size_t* colorizeStates(const Graph* const graph, const size_t n,
         colours[minDistancedNode.node] = minDistancedNode.colour;
         List* neighbors = NULL;
         List* lengths = NULL;
-        getNode(graph, minDistancedNode.node, &neighbors, &lengths);
+        getNodeNeighbours(graph, minDistancedNode.node, &neighbors, &lengths);
         for (size_t neighbor = 0; neighbor < getSize(neighbors); ++neighbor)
         {
             PriorityQueueValue newQueueElement = { .node = get(neighbors, neighbor), 
                 .colour = minDistancedNode.colour, 
                 .length = minDistancedNode.length + get(lengths, neighbor) };
-            push(&queue, newQueueElement);
+            PriorityQueueErrorCode errorCode = push(&queue, newQueueElement);
+            if (errorCode != defaultPriorityQueueErrorCode)
+            {
+                deleteQueue(&queue);
+                free(colours);
+                free(used);
+                return NULL;
+            }
         }
     }
+    deleteQueue(&queue);
     free(used);
     return colours;
 }
