@@ -24,6 +24,7 @@
     <ProjectGuid>{a78244d9-a0f0-4515-a4a8-adc01ff837c7}</ProjectGuid>
     <RootNamespace>TestCountingRhyme</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TestCountingRhyme.Test</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

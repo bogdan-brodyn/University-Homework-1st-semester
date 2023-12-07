@@ -24,6 +24,7 @@
     <ProjectGuid>{b3ea57d2-76ba-481a-b47f-99b11261ae1d}</ProjectGuid>
     <RootNamespace>TestAdvancedBracketSequence</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TestAdvancedBracketSequence.Test</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

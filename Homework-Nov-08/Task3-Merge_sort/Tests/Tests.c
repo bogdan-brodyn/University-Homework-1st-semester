@@ -18,7 +18,7 @@ static bool getValueAndCompare(const ListElement* const listElement,
         return false;
     }
     int compareByNameResult = compareByName(listElement, temp);
-    int compareByPhoneNumberResult = compareByPhoneNumber(listElement, temp);
+    unsigned long long compareByPhoneNumberResult = compareByPhoneNumber(listElement, temp);
     deleteListElement(temp);
     return compareByNameResult == 0 && compareByPhoneNumberResult == 0;
 }

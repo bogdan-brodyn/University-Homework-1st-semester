@@ -11,7 +11,7 @@ static char* get_string(BracketSequenceErrorCode* errorCode) {
     if (inputString == NULL)
     {
         *errorCode = bracketSequenceMemoryLack;
-        return NULL
+        return NULL;
     }
     char newChar = getchar();
     while (newChar != '\n') {

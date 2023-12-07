@@ -55,7 +55,7 @@ static List* mergeSortRecursive(List** const list,
 {
     if (*errorCode != defaultErrorCode)
     {
-        return;
+        return NULL;
     }
     if (sortAreaSize == 1)
     {
@@ -75,7 +75,7 @@ bool mergeSort(List** const list, const Compare compare)
     ListElement* listBackElement = getFront(*list);
     for (; getNext(listBackElement) != NULL; 
         listBackElement = getNext(listBackElement), ++arraySize);
-    ListErrorCode* errorCode = defaultErrorCode;
+    ListErrorCode errorCode = defaultErrorCode;
     List* sortedList = mergeSortRecursive(list, arraySize, compare, &errorCode);
     if (errorCode == defaultErrorCode)
     {

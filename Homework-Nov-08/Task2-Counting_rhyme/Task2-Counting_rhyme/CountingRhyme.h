@@ -7,4 +7,4 @@ typedef enum
     countingRhymeExecutedUrgently
 } CountingRhymeErrorCode;
 
-CountingRhymeErrorCode getLastElementValue(const int n, const int m, int* const lastElementValue);
+CountingRhymeErrorCode getLastElementValue(const size_t n, const size_t m, int* const lastElementValue);

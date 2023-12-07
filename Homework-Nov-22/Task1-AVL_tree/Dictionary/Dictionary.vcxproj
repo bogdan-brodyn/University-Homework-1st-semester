@@ -24,6 +24,7 @@
     <ProjectGuid>{828a2bc5-2d3f-4766-8257-599614b95fd3}</ProjectGuid>
     <RootNamespace>Dictionary</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Dictionary.Test</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
