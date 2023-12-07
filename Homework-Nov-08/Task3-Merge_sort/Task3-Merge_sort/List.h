@@ -12,7 +12,7 @@ typedef enum
 
 typedef struct ListElement ListElement;
 
-ListElement* createListElement(char* const name, 
+ListElement* createListElement(const char* const name,
     const unsigned long long phoneNumber);
 
 void deleteListElement(ListElement* listElement);
