@@ -5,11 +5,11 @@
 #include "../Graph/Graph.h"
 #include "../Graph/ColorizeStates.h"
 
-#define TEST1_FILE_PATH "../test1.txt"
-#define TEST2_FILE_PATH "../test2.txt"
-#define TEST3_FILE_PATH "../test3.txt"
-#define TEST4_FILE_PATH "../test4.txt"
-#define TEST5_FILE_PATH "../test5.txt"
+#define TEST1_FILE_PATH "test1.txt"
+#define TEST2_FILE_PATH "test2.txt"
+#define TEST3_FILE_PATH "test3.txt"
+#define TEST4_FILE_PATH "test4.txt"
+#define TEST5_FILE_PATH "test5.txt"
 
 #define TEST_PASSED 0
 #define TEST_FAILED 1
