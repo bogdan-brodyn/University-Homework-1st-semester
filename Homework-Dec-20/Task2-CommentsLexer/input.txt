@@ -1,0 +1,4 @@
+not a comment
+/*comment*/
+/*co**mmen/t*/
+/nota*comm*ent/not
