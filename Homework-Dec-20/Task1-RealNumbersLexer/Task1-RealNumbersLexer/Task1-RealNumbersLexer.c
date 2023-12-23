@@ -14,7 +14,7 @@ int test(void)
             return i + 1;
         }
     }
-    char* incorrectTestCases[] = { "", "ab", "12.e", "e17", "43.254e", "26E-" };
+    char* incorrectTestCases[] = { "", "ab", "12.", "e17", "43.254e", "26E-" };
     for (size_t i = 0; i < testCasesCount; ++i)
     {
         if (isNumber(incorrectTestCases[i]) != false)
