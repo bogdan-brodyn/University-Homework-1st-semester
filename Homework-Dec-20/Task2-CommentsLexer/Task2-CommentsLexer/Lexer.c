@@ -11,15 +11,17 @@ typedef enum
 {
     start,
     firstSlash,
+    commentStart,
     comment,
     secondAsterisk,
     commentEnd
 } State;
 
-State matrix[5][3] = {
+State matrix[6][3] = {
 //        /            *         default
     {firstSlash, start,          start},
-    {firstSlash, comment,        start},
+    {firstSlash, commentStart,   start},
+    {comment,    secondAsterisk, comment},
     {comment,    secondAsterisk, comment},
     {commentEnd, secondAsterisk, comment},
     {start,      start,          start}
@@ -41,24 +43,27 @@ static State move(const State state, const char symbol)
 void printComments(FILE* stream)
 {
     State state = start;
-    char currentChar = 0;
-    char previousChar = 0;
+    int commentsCounter = 0;
     while (feof(stream) == 0)
     {
-        currentChar = fgetc(stream);
+        char currentChar = fgetc(stream);
         state = move(state, currentChar);
-        if (state == comment || state == secondAsterisk)
+        switch (state)
         {
-            printf("%c", previousChar);
+        case commentStart:
+            printf("/*");
+            break;
+        case comment:
+        case secondAsterisk:
+            printf("%c", currentChar);
+            break;
+        case commentEnd:
+            printf("/ - comment %d\n\n", ++commentsCounter);
+            break;
         }
-        if (state == commentEnd)
-        {
-            printf("%c%c\n", previousChar, currentChar);
-        }
-        previousChar = currentChar;
     }
-    if (state == comment || state == secondAsterisk || state == commentEnd)
+    if (state == comment || state == secondAsterisk)
     {
-        printf("%c%c\n", previousChar, currentChar);
+        printf("Warning: Last comment didn't end correctly\n");
     }
 }

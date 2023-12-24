@@ -1,4 +1,16 @@
 not a comment
 /*comment*/
 /*co**mmen/t*/
-/nota*comm*ent/not
+/not a* comm*ent/not
+/*two strings
+comment*/
+/not a
+comment*/
+/*three
+strings
+comment*/
+/*five
+strings
+comment
+with
+incorrect ending

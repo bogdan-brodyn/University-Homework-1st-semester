@@ -4,7 +4,7 @@
 
 #define DEFAULT_EXIT_CODE 0
 #define FILE_NOT_FOUND 1
-#define INPUT_PATH "input.txt"
+#define INPUT_PATH "../input.txt"
 
 int main(void)
 {
