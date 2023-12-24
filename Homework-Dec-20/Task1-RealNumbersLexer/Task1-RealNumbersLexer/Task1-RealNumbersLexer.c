@@ -9,7 +9,7 @@ int test(void)
         "43.254e858", "26E-1" };
     for (size_t i = 0; i < testCasesCount; ++i)
     {
-        if (isNumber(correctTestCases[i]) != true)
+        if (!isNumber(correctTestCases[i]))
         {
             return i + 1;
         }
@@ -17,7 +17,7 @@ int test(void)
     char* incorrectTestCases[] = { "", "ab", "12.", "e17", "43.254e", "26E-" };
     for (size_t i = 0; i < testCasesCount; ++i)
     {
-        if (isNumber(incorrectTestCases[i]) != false)
+        if (isNumber(incorrectTestCases[i]))
         {
             return i + 1 + testCasesCount;
         }

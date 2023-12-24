@@ -21,7 +21,7 @@ static int move(State state, char symbol)
     switch (state)
     {
     case begin:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return integerPart;
         }
@@ -29,7 +29,7 @@ static int move(State state, char symbol)
     case notANumber:
         return notANumber;
     case integerPart:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return integerPart;
         }
@@ -43,13 +43,13 @@ static int move(State state, char symbol)
         }
         return notANumber;
     case fractionalPartBegin:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return fractionalPart;
         }
         return notANumber;
     case fractionalPart:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return fractionalPart;
         }
@@ -59,7 +59,7 @@ static int move(State state, char symbol)
         }
         return notANumber;
     case exponentBegin:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return exponent;
         }
@@ -69,13 +69,13 @@ static int move(State state, char symbol)
         }
         return notANumber;
     case sign:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return exponent;
         }
         return notANumber;
     case exponent:
-        if ('0' <= symbol && symbol <= '9')
+        if (isdigit(symbol))
         {
             return exponent;
         }
@@ -89,6 +89,10 @@ bool isNumber(const char* const string)
     for (size_t i = 0; string[i] != '\0'; ++i)
     {
         state = move(state, string[i]);
+        if (state == notANumber)
+        {
+            return false;
+        }
     }
     for (size_t i = 0; i < FINAL_STATES_COUNT; ++i)
     {
